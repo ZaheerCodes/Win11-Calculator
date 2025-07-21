@@ -7,6 +7,10 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+*::-webkit-scrollbar {
+    display: none;
+}
+
 legend {
     display: none;
 }
@@ -17,9 +21,8 @@ body {
     overflow: hidden;
 }
 main {
-    width: calc(100vw - 20.25rem);
+    width: clamp(100vw - 20rem, 57.3vw, 100vw - 15rem);
     height: 100vh;
-    /* overflow: hidden; */
 }
 
 fieldset {
@@ -33,9 +36,9 @@ button {
 /* Max = 970: btns = 650, other = 320 */
 
 #title-bar {
-    height: 9vh;
-    padding-top: 1rem;
-    padding-left: 0.75rem;
+    height: 6vh;
+    padding-top: 0.5rem;
+    padding-left: 0.25rem;
     display: flex;
     align-items: center;
     gap: 0.25rem;
@@ -45,6 +48,7 @@ button {
     }
 
     & h3 {
+        margin-top: -0.0625rem;
         font-weight: 500;
         font-size: 1.25rem;
         text-transform: capitalize;
@@ -61,20 +65,25 @@ button {
         &:hover {
             background-color: #eaeaea;
         }
+
+        & i {
+            font-size: 0.875rem;
+            transform: scaleX(1.25);
+            color: #666666;
+        }
     }
 
 
 }
 
 #output-bar {
-    height: 21vh;
+    height: 20.7vh;
     width: 100%;
     padding-right: 0.75rem;
-    padding-top: 0.75rem;
+    padding-top: 1.625rem;
     display: flex;
     flex-direction: column;
     align-items: end;
-    gap: 0.375rem;
 
     & #exp {
         font-size: 0.9375rem;
@@ -83,22 +92,32 @@ button {
     }
 
     & #result {
-        font-size: 3rem;
+        /* display: none; */
+        height: 100%;
+        padding-top: 0.75rem;
+        font-size: 4.5rem;
         font-weight: 500;
         line-height: 1;
     }
 }
 
 #tool-bar {
-    height: 6vh;
+    height: 6.5vh;
+    padding: 0 0.25rem;
     display: flex;
     flex-wrap: nowrap;
     width: 100%;
-    z-index: 10;
+
+    & fieldset {
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        height: 100%;
+    }
 
     & button {
         height: 100%;
-        width: 4.875rem;
+        width: clamp(3.6875rem, 20%, 4.8125rem);
         background-color: transparent;
         border-radius: 0.25rem;
         border: none;
@@ -107,12 +126,16 @@ button {
             background-color: #eaeaea;
         }
     }
+
+    /* #memory-view-btn {
+        display: none;
+    } */
 }
 
 #buttons-panel {
     display: grid;
     width: 100%;
-    height: 64vh;
+    height: 66.8vh;
     padding: 0.125rem 0.25rem 0.25rem 0.25rem;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -151,7 +174,7 @@ button {
         grid-area: 3 / 1 / 7 / 4 ;
 
         & button {
-            font-size: 1.0625rem;
+            font-size: 1.375rem;
             background-color: #ffffff;
         }
         & button:hover {
@@ -177,7 +200,7 @@ button {
         border-radius: 0.3125rem;
         border: 1px solid #e4e4e4;
         border-bottom: 1px solid #cccccc !important;
-        font-size: 0.875rem;
+        font-size: 1.375rem;
         text-transform: uppercase;
         &:hover {
             background-color: #f7f7f7;
@@ -186,14 +209,12 @@ button {
 }
 
 #storage-panel {
-    /* max-width: 20.5rem; */
-    /* min-width: 15.5rem; */
-    width: 20.25rem;
-    padding-top: 1.375rem;
-    padding-left: 0.25rem;
+    width: clamp(15rem, 42.7vw, 20rem);
+    padding-top: 0.625rem;
 
     & #tab-bar {
         display: flex;
+        margin-bottom: 0.625rem;
 
         & button {
             padding: 0.5rem 0.8125rem 0 0.8125rem;
@@ -214,7 +235,7 @@ button {
 
         & .active::after {
             content: '';
-            height: 0.1875rem;
+            height: 0.225rem;
             width: 1.0625rem;
             border-radius: 0.25rem;
             background-color: #0067c0;
@@ -228,7 +249,8 @@ button {
     
     & #history {
         padding-top: 1.5rem;
-        padding-right: 1rem;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
         display: flex;
         flex-direction: column;
         overflow-y: scroll;
@@ -241,11 +263,13 @@ button {
         }
 
         & .item {
-            margin-bottom: 2.25rem;
+            margin-bottom: 1.375rem;
+            padding: 0.625rem 0.75rem 0.5rem 0rem;
             display: flex;
             flex-direction: column;
             align-items: end;
             gap: 0.5rem;
+            border-radius: 0.25rem;
 
             & .h-exp {
                 font-size: 0.875rem;
@@ -257,6 +281,60 @@ button {
                 font-weight: 500;
                 line-height: 1;
             }
+
+            &:hover {
+                background-color: #ece9e8;
+            }
+        }
+
+        
+
+    }
+}
+
+/* --------------------------------------------------------------------------------- */
+/* --------------------------------- MEDIA QUERIES --------------------------------- */
+/* --------------------------------------------------------------------------------- */
+
+@media (min-width: 560px) {
+
+    #memory-view-btn {
+        display: none;
+    }
+}
+
+@media (max-height: 680px) {
+    #output-bar #result {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 560px) {
+
+    main {
+        width: 100vw;
+    }
+
+    #storage-panel {
+        position: absolute;
+        & > * {
+            visibility: hidden;
         }
     }
+}
+
+@media (max-width: 510px)
+{
+    #buttons-panel {
+
+        #digits button {
+            font-size: 1.0625rem;
+        }
+
+        & button {
+            font-size: 0.875rem;            
+        }
+    }
+
+
 }

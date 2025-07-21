@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Windows Calculator</title>
+    <title>Calculator</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="font.css">
+    <script src="https://kit.fontawesome.com/817ae253f4.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <aside id="sidebar-menu">
     </aside>
     <main>
         <section id="title-bar">
-            <button>&mdash;</button>
+            <button>
+                <i class="fa-solid fa-bars"></i>
+            </button>
             <h3>standard</h3>
         </section>
         <section id="output-bar">
             <p id="exp">1234567890 -</p>
-            <p id="result">1,234,567,890</p>
+            <p id="result">1,234,567,890,123,456.</p>
         </section>
         <section id="tool-bar">
             <fieldset>
@@ -28,6 +31,7 @@
                 <button id="-btn">M-</button>
                 <button id="-btn">MS</button>
             </fieldset>
+            <button id="memory-view-btn">MV</button>
         </section>
         <section id="buttons-panel">
             <div id="adv-ops-1" role="group" aria-label="Advanced Operators">
@@ -79,7 +83,7 @@
         </section>
         <section id="history">
             <p id="empty-msg">There's no history yet.</p>
-            <div class="item">
+            <!-- <div class="item">
                 <pre class="h-exp">676302730297344   ×   96 =</pre>
                 <pre class="h-result">6.492506210854502e+16</pre>
             </div>
@@ -94,9 +98,9 @@
             <div class="item">
                 <pre class="h-exp">676302730297344   ×   96 =</pre>
                 <pre class="h-result">6.492506210854502e+16</pre>
-            </div>
+            </div> -->
             <div class="item">
-                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-exp">sqr( 3706040377703685 )   +  </pre>
                 <pre class="h-result">6.492506210854502e+16</pre>
             </div>
             <div class="item">
@@ -118,5 +122,6 @@
         </section>
         <section id="memory"></section>
     </aside>
+    <script src="script.js"></script>
 </body>
 </html>
