@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="font.css">
+</head>
+<body>
+    <aside id="sidebar-menu">
+    </aside>
+    <main>
+        <section id="title-bar">
+            <button>&mdash;</button>
+            <h3>standard</h3>
+        </section>
+        <section id="output-bar">
+            <p id="exp">1234567890 -</p>
+            <p id="result">1,234,567,890</p>
+        </section>
+        <section id="tool-bar">
+            <fieldset>
+                <legend></legend>
+                <button id="-btn">MC</button>
+                <button id="-btn">MR</button>
+                <button id="-btn">M+</button>
+                <button id="-btn">M-</button>
+                <button id="-btn">MS</button>
+            </fieldset>
+        </section>
+        <section id="buttons-panel">
+            <div id="adv-ops-1" role="group" aria-label="Advanced Operators">
+                <button id="-btn">%</button>
+            </div>
+            <fieldset id="clear-btns">
+                <legend></legend>
+                <button id="-btn">ce</button>
+                <button id="-btn">c</button>
+                <button id="-btn">back</button>                
+            </fieldset>
+            <div id="adv-ops-2" role="group" aria-label="Advanced Operators">
+                <button id="-btn">1/x</button>
+                <button id="-btn">x^2</button>
+                <button id="-btn">sq(x)</button>
+            </div>
+            <div id="adv-ops-3" role="group" aria-label="Advanced Operators">
+
+            </div>
+            <fieldset id="digits">
+                <legend></legend>
+                <button id="-btn">7</button>
+                <button id="-btn">8</button>
+                <button id="-btn">9</button>
+                <button id="-btn">4</button>
+                <button id="-btn">5</button>
+                <button id="-btn">6</button>
+                <button id="-btn">1</button>
+                <button id="-btn">2</button>
+                <button id="-btn">3</button>
+                <button id="-btn">+/-</button>
+                <button id="-btn">0</button>
+                <button id="-btn">.</button>
+            </fieldset>
+            <fieldset id="basic-ops">
+                <legend></legend>
+                <button id="-btn">/</button>
+                <button id="-btn">x</button>
+                <button id="-btn">-</button>
+                <button id="-btn">+</button>
+            </fieldset>
+            <button id="equal-btn" onclick="alert(innerWidth + ` : ` + innerHeight )">=</button>
+        </section>
+    </main>
+    <aside id="storage-panel">
+        <section id="tab-bar">
+            <button id="tab-history" class="active">history</button>
+            <button id="tab-memory">memory</button>
+        </section>
+        <section id="history">
+            <p id="empty-msg">There's no history yet.</p>
+            <div class="item">
+                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-result">6.492506210854502e+16</pre>
+            </div>
+            <div class="item">
+                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-result">6.492506210854502e+16</pre>
+            </div>
+            <div class="item">
+                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-result">6.492506210854502e+16</pre>
+            </div>
+            <div class="item">
+                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-result">6.492506210854502e+16</pre>
+            </div>
+            <div class="item">
+                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-result">6.492506210854502e+16</pre>
+            </div>
+            <div class="item">
+                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-result">6.492506210854502e+16</pre>
+            </div>
+            <div class="item">
+                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-result">6.492506210854502e+16</pre>
+            </div>
+            <div class="item">
+                <pre class="h-exp">676302730297344   ×   96 =</pre>
+                <pre class="h-result">6.492506210854502e+16</pre>
+            </div>
+            <div class="item">
+                <pre class="h-exp">0   +   1 = </pre>
+                <pre class="h-result">1</pre>
+            </div>
+        </section>
+        <section id="memory"></section>
+    </aside>
+</body>
+</html>
