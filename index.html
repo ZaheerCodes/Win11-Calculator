@@ -19,61 +19,61 @@
             <h3>standard</h3>
         </section>
         <section id="output-bar">
-            <p id="exp">1234567890 -</p>
-            <p id="result">1,234,567,890,123,456.</p>
+            <p id="exp"></p>
+            <p id="type">0</p>
         </section>
         <section id="tool-bar">
             <fieldset>
                 <legend></legend>
-                <button id="-btn">MC</button>
-                <button id="-btn">MR</button>
-                <button id="-btn">M+</button>
-                <button id="-btn">M-</button>
-                <button id="-btn">MS</button>
+                <button id="m-clear-btn">MC</button>
+                <button id="m-reset-btn">MR</button>
+                <button id="m-plus-btn">M+</button>
+                <button id="m-minus-btn">M-</button>
+                <button id="m-store-btn">MS</button>
             </fieldset>
-            <button id="memory-view-btn">MV</button>
+            <button id="m-view-btn">MV</button>
         </section>
         <section id="buttons-panel">
             <div id="adv-ops-1" role="group" aria-label="Advanced Operators">
-                <button id="-btn">%</button>
+                <button id="percent-btn" class="standard">%</button>
             </div>
             <fieldset id="clear-btns">
                 <legend></legend>
-                <button id="-btn">ce</button>
-                <button id="-btn">c</button>
-                <button id="-btn">back</button>                
+                <button id="clear-entry-btn">ce</button>
+                <button id="clear-all-btn">c</button>
+                <button id="backspace-btn">back</button>                
             </fieldset>
             <div id="adv-ops-2" role="group" aria-label="Advanced Operators">
-                <button id="-btn">1/x</button>
-                <button id="-btn">x^2</button>
-                <button id="-btn">sq(x)</button>
+                <button id="reciprocal-btn">1/x</button>
+                <button id="sq-btn">x^2</button>
+                <button id="sqrt-btn">sqrt(x)</button>
             </div>
             <div id="adv-ops-3" role="group" aria-label="Advanced Operators">
 
             </div>
             <fieldset id="digits">
                 <legend></legend>
-                <button id="-btn">7</button>
-                <button id="-btn">8</button>
-                <button id="-btn">9</button>
-                <button id="-btn">4</button>
-                <button id="-btn">5</button>
-                <button id="-btn">6</button>
-                <button id="-btn">1</button>
-                <button id="-btn">2</button>
-                <button id="-btn">3</button>
-                <button id="-btn">+/-</button>
-                <button id="-btn">0</button>
-                <button id="-btn">.</button>
+                <button id="7-btn" class="type">7</button>
+                <button id="8-btn" class="type">8</button>
+                <button id="9-btn" class="type">9</button>
+                <button id="4-btn" class="type">4</button>
+                <button id="5-btn" class="type">5</button>
+                <button id="6-btn" class="type">6</button>
+                <button id="1-btn" class="type">1</button>
+                <button id="2-btn" class="type">2</button>
+                <button id="3-btn" class="type">3</button>
+                <button id="sign-btn">+/-</button>
+                <button id="0-btn" class="type">0</button>
+                <button id=".-btn" class="type">.</button>
             </fieldset>
             <fieldset id="basic-ops">
                 <legend></legend>
-                <button id="-btn">/</button>
-                <button id="-btn">x</button>
-                <button id="-btn">-</button>
-                <button id="-btn">+</button>
+                <button id="div-btn">/</button>
+                <button id="mul-btn">x</button>
+                <button id="min-btn">-</button>
+                <button id="plus-btn">+</button>
             </fieldset>
-            <button id="equal-btn" onclick="alert(innerWidth + ` : ` + innerHeight )">=</button>
+            <button id="equal-btn">=</button>
         </section>
     </main>
     <aside id="storage-panel">
