@@ -217,6 +217,8 @@ button {
 }
 
 #storage-panel {
+    display: flex;
+    flex-direction: column;
     width: clamp(15rem, 42.7vw, 20rem);
     padding-top: 0.625rem;
 
@@ -256,18 +258,24 @@ button {
     }
     
     & #history {
-        padding-top: 1.5rem;
+        height: 100%;
+        padding-top: 0.5rem;
         padding-left: 0.25rem;
         padding-right: 0.25rem;
         display: flex;
         flex-direction: column;
-        overflow-y: scroll;
-        height: calc(100vh - 6.5rem);
-
+        justify-content: space-between;
+        
         & #empty-msg {
-            font-size: 0.875rem;
+            padding-top: 0.5rem;
             padding-left: 0.875rem;
-            display: none;
+            display: flex;
+            font-size: 0.875rem;
+        }
+
+        & #history-list {
+            height: calc(100vh - 9rem);
+            overflow-y: scroll;
         }
 
         & .item {
@@ -295,8 +303,30 @@ button {
             }
         }
 
-        
+        & #footer {
+            position: absolute;
+            right: 0.25rem;
+            bottom: 0.25rem;
+            height: 3rem;
+            width: 100%;
+            display: flex;
+            justify-content: end;
+            background-color: #f3f3f3;
+        }
 
+        & #del-history-btn {
+            width: 3rem;
+            height: 2.5rem;
+            font-size: 1.125rem;
+            background-color: transparent;
+            border-radius: 0.25rem;
+            border: none;
+
+            &:hover {
+                background-color: #eaeaea;
+            }
+
+        }
     }
 }
 

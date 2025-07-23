@@ -12,82 +12,245 @@ let divBtn = buttons.querySelector("#div-btn");
 let mulBtn = buttons.querySelector("#mul-btn");
 let minBtn = buttons.querySelector("#min-btn");
 let plusBtn = buttons.querySelector("#plus-btn");
+
+let percentBtn = buttons.querySelector("#percent-btn");
+let reciprocalBtn = buttons.querySelector("#reciprocal-btn");
+let squareBtn = buttons.querySelector("#sqr-btn");
+let sqRootBtn = buttons.querySelector("#sqrt-btn");
+
 let equalBtn = buttons.querySelector("#equal-btn");
 
-let operand1 = "";
-let operand2 = "";
-let lastOperator = "";
+let delHistoryBtn = document.querySelector("#storage-panel #del-history-btn");
 
 const key = Object.freeze({
     Digit: "digit",
     Equal: "equal",
     Operator: "operator",
+    Control: "control",
     None: "none"
 });
+
 let lastKey = key.None;
+let resultState = false;    // true when: equal, unary, or binary operator btn is pressed
+                            // false again when: some digit or clear all btn is pressed
 
-// HANDLING INPUT:
-// **************
+/*
+    ===================
+      HANDLING INPUTS
+    ===================
+*/
 
-const type = (event = null, str = "", merge = true) => {
+const handleDigitInput = (event = null, str = "") => {
 
-    if (lastKey != key.Digit) typeTxt.innerText = "0";
-
+    if (lastKey == key.Equal) {
+        handleClearAll();
+    }
+    let oldTxt = (exp.isBinary? exp.operand2 : exp.operand1).toString();
+    if (resultState) {
+        oldTxt = "0";
+    }
     let newTxt = str;
-    if (event != null)
+    if (event != null) {
         newTxt = event.target.innerText;
-
-    typeTxt.innerText = removeCommas(typeTxt.innerText.toString());
-    newTxt = removeCommas(newTxt);
-
-    let newTxtLen = newTxt.length;
-    let typeTextLen = typeTxt.innerText.toString().length;
+    }
+    let inputLimit = getInputLimit(newTxt, oldTxt);
+    let oldTxtHasDac = oldTxt.includes(".");
     let newTxtHasDec = newTxt.includes(".");
-    let typeTextHasDac = typeTxt.innerText.toString().includes(".");
+    if ((newTxtHasDec && oldTxtHasDac)){
+        return;
+    }
+    if (oldTxt === "0") {
+        if (newTxt[0] == ".")
+            oldTxt += newTxt;
+        else
+            oldTxt = newTxt;
+    }
+    else {
+        oldTxt += newTxt;
+    }
+    if (exp.isBinary)
+        exp.operand2 = oldTxt.slice(0,inputLimit);
+    else
+        exp.operand1 = oldTxt.slice(0,inputLimit);
+    resultState = false;
+    lastKey = key.Digit;
+    handleFieldDisplay(false);
+};
 
+const getInputLimit = (newTxt, oldTxt) => {
     let charLimit = 16;
-    if ((merge && typeTextHasDac) ||
-        (!merge && newTxtHasDec))
-    {
+    let oldTxtHasDac = oldTxt.includes(".");
+    let newTxtHasDec = newTxt.includes(".");
+    if (oldTxtHasDac || newTxtHasDec) {
         charLimit = 17;
     }
-    if ((merge && typeTxt.innerText.toString().slice(0,2) == "0.") ||
-        !merge && newTxt.slice(0,2) == "0.")
-    {
+    let merge = oldTxt === "0" && newTxt[0] !== ".";
+    if ((merge && oldTxt.slice(0,2) === "0.") ||
+        !merge && newTxt.slice(0,2) === "0.") {
         charLimit = 18;
     }
+    return charLimit;
+};
 
-    if ( merge &&
-        ((newTxtHasDec && typeTextHasDac) ||
-         (newTxtLen + typeTextLen > charLimit))
-    ) {
-        typeTxt.innerText = addCommas(typeTxt.innerText.toString());
+/* 
+    =================
+      HANDLING KEYS
+    =================
+*/
+
+const handleKeys = (event) => {
+
+    if ("0123456789.".includes(event.key.toString())) {
+        handleDigitInput(null, event.key.toString());
+        lastKey = key.Digit;
+    }
+
+    else if (event.key == "Backspace") {
+        handleBackspace();
+        lastKey = key.Control;
+    }
+
+    else if (event.key == "Delete") {
+        handleClearEntry();
+        lastKey = key.Control;
+    }
+
+    else if (event.key == "Escape") {
+        handleClearAll();
+        lastKey = key.Control;
+    }
+
+    else if (event.key == "Enter" || event.key == "=") {
+        handleEqualBtn();
+        lastKey = key.Equal;
+    }
+
+    else if (event.key == "+") {
+        handleBinaryOp(binOp.Add);
+        lastKey = key.Operator;
+    }
+
+    else if (event.key == "-") {
+        handleBinaryOp(binOp.Subtract);
+        lastKey = key.Operator;
+    }
+
+    else if (event.key == "*") {
+        handleBinaryOp(binOp.Multiply);
+        lastKey = key.Operator;
+    }
+
+    else if (event.key == "/") {
+        handleBinaryOp(binOp.Divide);
+        lastKey = key.Operator;
+    }
+
+    else if (event.key == "q") {
+        handleUnaryOp(unOp.Square);
+        lastKey = key.Operator;
+    }
+
+    else if (event.key == "r") {
+        handleUnaryOp(unOp.Reciprocal);
+        lastKey = key.Operator;
+    }
+
+    else if (event.key == "@") {
+        handleUnaryOp(unOp.SqRoot);
+        lastKey = key.Operator;
+    }
+}
+
+/* 
+    ====================
+      HANDLING DISPLAY
+    ====================
+*/
+
+const getTypeTxt = () => {
+    return document.querySelector("#type").innerText;
+};
+
+const setTypeTxt = (str) => {
+    document.querySelector("#type").innerText = str;
+};
+
+const getExpTxt = () => {
+    return document.querySelector("#exp").innerText;
+}
+
+const setExpTxt = (str) => {
+    document.querySelector("#exp").innerText = str;
+}
+
+const handleFieldDisplay = (equalPressed) => {
+    if (exp.operand1 == ""){
+        setTypeTxt("0");
         return;
     }
 
-    if (typeTxt.innerText == "0") {
-        if (newTxt[0] == ".")
-            typeTxt.innerText += newTxt;
-        else
-            typeTxt.innerText = newTxt;
+    if (equalPressed) {
+        if (exp.isBinary) {
+            setTypeTxt(addCommas(performFlatExp(exp)));
+        } else {
+            setTypeTxt(addCommas(performAllUnaryOps(exp.operand1, exp.unaryOps1)));
+        }
     }
     else {
-        if (merge)
-            typeTxt.innerText += newTxt;
-        else
-            typeTxt.innerText = newTxt;
+        if (exp.isBinary) {
+            if (resultState) {
+                if (exp.operand2 == "") {
+                    setTypeTxt(addCommas(performAllUnaryOps(exp.operand1, exp.unaryOps1)));
+                } else {
+                    setTypeTxt(addCommas(performAllUnaryOps(exp.operand2, exp.unaryOps2)));
+                }
+            } else {
+                if (exp.operand2 == "") {
+                    setTypeTxt(addCommas(performAllUnaryOps(exp.operand1, exp.unaryOps1)));
+                } else {
+                    setTypeTxt(addCommas(performAllUnaryOps(exp.operand2, exp.unaryOps2)));
+                }
+            }
+        } else {
+            setTypeTxt(addCommas(performAllUnaryOps(exp.operand1, exp.unaryOps1)));
+        }    
     }
+    adjustResultTxt();
+};
 
-    typeTxt.innerText = addCommas(typeTxt.innerText);
-
-    if(operand1 != "") {
-        operand2 = removeCommas(typeTxt.innerText);
+const handleExpDisplay = (equalPressed) => {
+    if (exp.operand1 == ""){
+        setExpTxt("");
+        return;
     }
+    if (equalPressed) {
+        setExpTxt(readFlatExp(exp) + " =");
+    }
+    else {
+        setExpTxt(readFlatExp(exp));
+    }
+};
 
-    lastKey = key.Digit;
-}
+const readFlatExp = (exp) => {
+    let expStr = "";
+    let op1 = exp.operand1;
+    let op2 = "";
+    for (let i = 0; i < exp.unaryOps1.length; i++) {
+        op1 = exp.unaryOps1[i] + "( " + op1 + " )";        
+    }
+    if (exp.isBinary) {
+        op2 = exp.operand2;
+        for (let i = 0; i < exp.unaryOps2.length; i++) {
+            op2 = exp.unaryOps2[i] + "( " + op2 + " )";        
+        }
+        op2 = " " + op2;
+    }
+    expStr += op1 + " " + exp.binaryOp + op2;
+    return expStr;
+};
 
 const removeCommas = (str) => {
+    str = str.toString();
     let result = str;
     if (str.includes(",")) {
         result = "";
@@ -97,228 +260,44 @@ const removeCommas = (str) => {
         }
     }
     return result;
-}
+};
 
 const addCommas = (str) => {
     str = removeCommas(str);
     let result = "";
     let temp = str;
     let decIdx = -1;
-
     for (let i = 0; i < str.length; i++) {
         if (str[i] == ".") {
             decIdx = i;
             break;
         }
     }
-
     if (decIdx != -1)
         temp = str.slice(0,decIdx);
-
     if (temp.length <= 3)
         return str;
-
+    if (temp[0] == "-")
+        temp = temp.slice(1);
     for (let i = 0; i < temp.length; i++) {
         if (i > 0 && (temp.length - i) % 3 == 0) {
             result += ",";
         }
         result += temp[i];
     }
-
     if (decIdx != -1)
         result += str.slice(decIdx, str.length);
-
+    if (str[0] == "-")
+        result = "-" + result; 
     return result;
-}
-
-const handleKeys = (event) => {
-
-    if ("0123456789.".includes(event.key.toString())) {
-        type(null, event.key.toString(), true);
-    }
-
-    else if (event.key == "Backspace") {
-        handleBackspace();
-    }
-
-    else if (event.key == "Delete") {
-        typeTxt.innerText = "0";
-    }
-
-    else if (event.key == "Escape") {
-        clearAllDisplay();
-    }
-
-    else if (event.key == "Enter" || event.key == "=") {
-        handleEqualBtn();
-    }
-
-    else if (event.key == "+") {
-        handleBasicOp("+", op.Add);
-    }
-
-    else if (event.key == "-") {
-        handleBasicOp("-", op.Subtract);
-    }
-
-    else if (event.key == "*") {
-        handleBasicOp("*", op.Multiply);
-    }
-
-    else if (event.key == "/") {
-        handleBasicOp("/", op.Divide);
-    }
-
-    // IN STANDARD  
-    // q for square
-    // r for reciprocal
-    // Shift+2 for square root
-
-}
-
-const handleBackspace = () => {
-
-    let temp = typeTxt.innerText.toString();
-    removeCommas(temp);
-    let len = temp.length;
-
-    if (len > 1) {
-        temp = temp.slice(0,len-1);
-    }
-    else if (len = 1 && temp != "0") {
-        temp = "0";
-    }
-
-    typeTxt.innerText = addCommas(temp);
-}
-
-
-// HANDLING OPERTORS:
-// *****************
-
-const op = Object.freeze({
-    Add: "add",
-    Subtract: "subtract",
-    Multiply: "multiply",
-    Divide: "divide",
-    None: "none"
-});
-
-const handleNegateOp = () => {
-    let str = typeTxt.innerText.toString();
-    if (str == "0") {
-        return;
-    }
-    if (str[0] != "-") {
-        typeTxt.innerText = "-" + str;
-    }
-    else {
-        typeTxt.innerText = str.slice(1,str.length);
-    }
-}
-
-const handleBasicOp = (symbol, lastOp) => {
-    let str = typeTxt.innerText.toString();
-    let expStr = expTxt.innerText.toString();
-    let clearedStr = removeCommas(str);
-
-    if (operand1 == "" || expStr.includes("=")) {
-        expTxt.innerText = clearedStr + " " + symbol;
-    }
-
-    if (operand1 == "") {
-        operand1 = clearedStr;
-    }
-    else if(operand2 != "" && lastKey != key.Equal) {
-        performOperations();
-    }
-
-    lastOperator = lastOp;
-    lastKey = key.Operator;
-}
-
-const performOperations = (isEqualPressed = false) => {
-
-    let op1 = parseFloat(operand1);
-    let op2 = parseFloat(operand2);
-    let result = "";
-    let symbol = "";
-
-    switch(lastOperator) {
-        case op.Add:
-            result = op1 + op2;
-            symbol = "+";
-            break;
-
-        case op.Subtract:
-            result = op1 - op2;
-            symbol = "-";
-            break;
-
-        case op.Multiply:
-            result = op1 * op2;
-            symbol = "*";
-            break;
-
-        case op.Divide:
-            if (op2 != 0) {
-                result = op1 / op2;
-                symbol = "/";                
-            }
-            else {
-                typeTxt.innerText = "Cannot divide by zero";
-            }
-            break;
-    }
-
-    if (result !== "") {
-        if (isEqualPressed) {
-            expTxt.innerText = `${operand1} ${symbol} ${operand2} =`;
-        }
-        else {
-            expTxt.innerText = result + " " + symbol;
-            operand2 = "";
-        }
-        operand1 = result;
-        typeTxt.innerText = result + "";
-    }
-}
-
-
-// HANDLING EQUAL BUTTON:
-// *********************
-
-const handleEqualBtn = () => {
-    if (operand1 == "") {
-        expTxt.innerText = typeTxt.innerText + " =";
-    }
-    else {
-        if (operand2 == "" || lastKey == key.Operator)
-            operand2 = removeCommas(typeTxt.innerText);
-        performOperations(true);
-    }
-    lastKey = key.Equal;
-}
-
-// HANDLING DISPLAY:
-// ****************
-
-const clearAllDisplay = () => {
-    expTxt.innerText = "";
-    typeTxt.innerText = "0";
-    operand1 = "";
-    operand2 = "";
-    lastOperator = op.None;
-}
+};
 
 const adjustResultTxt = () => {
     let parent = typeTxt.parentElement;
-
     let maxFont = 72;
     if(innerHeight < 680)
         maxFont = 48;
     typeTxt.style.fontSize = maxFont + "px";
-
     while (parseInt(parent.getBoundingClientRect().width) - parseInt(typeTxt.getBoundingClientRect().width) < 24)
     {
         let fontValue = parseInt(getComputedStyle(typeTxt).getPropertyValue("font-size").slice(0,2));
@@ -330,33 +309,331 @@ const adjustResultTxt = () => {
 adjustResultTxt();
 
 
-// HANDLING EVENTS:
-// ****************
+/* 
+    ==========================
+      HANDLING CLEAR BUTTONS
+    ==========================
+*/
+
+const handleBackspace = () => {
+    if (!resultState) {
+        if (exp.isBinary) {
+            exp.operand2 = delLastDigit(exp.operand2);
+        }
+        else {
+            exp.operand1 = delLastDigit(exp.operand1);
+        }
+        lastKey = key.Control;
+        handleFieldDisplay(false);
+    }
+
+    function delLastDigit (str) {
+        if (str.length > 1) {
+            str = str.slice(0, str.length-1);
+        }
+        else if (str.length = 1) {
+            str = "0";
+        }
+        return str;
+    };
+};
+
+const handleClearEntry = () => {
+    if (exp.isBinary) {
+        exp.operand2 = "0";
+    }
+    else {
+        exp.operand1 = "0";
+    }
+    resultState = true;
+    lastKey = key.Control;
+    handleFieldDisplay(false);
+};
+
+const handleClearAll = () => {
+    let clearedExp = {
+        isBinary: false,    binaryOp: "",
+        operand1: "0",      operand2: "",
+        unaryOps1: [],      unaryOps2: []
+    };
+    exp = clearedExp;
+    resultState = false;
+    lastKey = key.Control;
+    setExpTxt("");
+    handleFieldDisplay(false);
+}
+
+
+/* 
+    =======================
+      HANDLING OPERATIONS
+    =======================
+*/
+
+let exp = {
+    isBinary: false,    binaryOp: "",
+    operand1: "0",      operand2: "",
+    unaryOps1: [],      unaryOps2: []
+};
+
+const binOp = Object.freeze({
+    Add: "+",
+    Subtract: "-",
+    Multiply: "*",
+    Divide: "/",
+    None: "none"
+});
+
+const unOp = Object.freeze({
+    Negate: "negate",
+    Reciprocal: "1/",
+    Square: "sqr",
+    SqRoot: "sqrt",
+    None: "none"
+});
+
+const opType = Object.freeze({
+    Unary: "u",
+    Binary: "b",
+    None: "none"
+});
+
+const performFlatExp = (exp) => {
+    let result1 = performAllUnaryOps(exp.operand1, exp.unaryOps1);
+    let result2 = exp.operand2;
+    let total = result1;
+    if (exp.isBinary) {
+        result2 = performAllUnaryOps(exp.operand2, exp.unaryOps2);
+        total = evaluateBinaryOp(result1, result2, exp.binaryOp);
+    }
+    return total;
+};
+
+const performAllUnaryOps = (operand, unaryArr) => {
+    if (unaryArr.length != 0) {
+        let result = unaryArr.reduce((accumulator, currentValue) => {
+            return evaluateUnaryOp(accumulator, currentValue);
+        }, operand);
+        return result;
+    }
+    return operand;
+}
+
+const evaluateUnaryOp = (operand, operator) => {
+    let op = parseFloat(operand);
+    let result = 0;
+    switch(operator) {
+        case "negate":
+            result = -(op);
+            break;
+        case "sqr":
+            result = op*op;
+            break;
+        case "sqrt":
+            result = Math.sqrt(op);
+            break;
+        case "1/":
+            result = 1/op;
+            break;
+    }
+    return result;
+};
+
+const evaluateBinaryOp = (operand1, operand2, operator) => {
+    let op1 = parseFloat(operand1);
+    let op2 = parseFloat(operand2);
+    let result = 0;
+    switch(operator) {
+        case binOp.Add:
+            result = op1 + op2;
+            break;
+        case binOp.Subtract:
+            result = op1 - op2;
+            break;
+        case binOp.Multiply:
+            result = op1 * op2;
+            break;
+        case binOp.Divide:
+            if (op2 != 0)
+                result = op1 / op2;
+            else
+                typeTxt.innerText = "Cannot divide by zero";
+            break;
+    }
+    return result;
+};
+
+const degToRadians = (deg) => {
+    return (parseFloat(deg) * Math.PI ) / 180;
+};
+
+const getObjFromFlatExp = (expStr) => {
+
+    // Expected String Format
+    // Binary:  'numUnary1, unaryOps1, Op1, binaryOp, Op2, unaryOp2, numUnary2'
+    // Unary:   'numUnary1, unaryOps1, Op1, 0'
+    // For both unaryOps1 & unaryOps2, in-to-out = left-to-right
+
+    let exp = {
+        isBinary: false,    binaryOp: "",
+        operand1: "0",      operand2: "",
+        unaryOps1: [],      unaryOps2: []
+    };
+    exp.isBinary = (getNumOfOps(expStr) == 2);
+    let expArr = expStr.split(",");
+    let numUnary1 = parseInt(expArr.at(0));
+    exp.operand1 = expArr.at(numUnary1 + 1);
+    if (numUnary1 != 0)
+        exp.unaryOps1 = expArr.slice(1, numUnary1 + 1);
+    let numUnary2 = parseInt(expArr.at(-1));
+    if (exp.isBinary) {
+        exp.binaryOp = expArr.at(numUnary1 + 2);
+        exp.operand2 = expArr.at(numUnary1 + 3);
+        if (numUnary2 != 0)
+            exp.unaryOps2 = expArr.slice(-(numUnary2 + 1), -1);
+    }
+    return exp;
+}
+
+const getNumOfOps = (expStr) => {
+    let expArr = expStr.split(",");
+    expArr[parseInt(expArr.at(0)) + 1] = "checkOp";
+    if (expArr.at(-2) == "checkOp")
+        return 1;
+    else
+        return 2;
+}
+
+/* 
+    =============================
+      HANDLING OPERATOR BUTTONS
+    =============================
+*/
+
+const handlePercentOp = () => {
+    if (exp.isBinary) {
+        if (exp.operand2 == "") {
+            exp.operand2 = exp.operand1;
+        } else {
+            exp.operand2 = performAllUnaryOps(exp.operand2, exp.unaryOps2);
+        }
+        exp.operand2 = exp.operand2 * (exp.operand1 / 100);
+        resultState = true;
+        lastKey = key.Operator;
+        handleFieldDisplay(false);
+        handleExpDisplay(false);
+    }
+};
+
+const handleNegateOp = () => {
+    if (exp.isBinary) {
+        if (exp.operand2 == "") {
+            exp.operand2 = exp.operand1;            
+        }
+        if (resultState) {
+            exp.unaryOps2.push(unOp.Negate);
+            handleExpDisplay(false);
+        } else if (exp.operand2 !== "0"){
+            exp.operand2 = -exp.operand2;
+        }
+    }
+    else {
+       if (resultState) {
+            exp.unaryOps1.push(unOp.Negate);
+            handleExpDisplay(false);
+        } else if (exp.operand1 !== "0"){
+            exp.operand1 = -exp.operand1;
+        }
+    }
+    lastKey = key.Operator;
+    handleFieldDisplay(false);
+}
+const handleUnaryOp = (operator) => {
+    if (exp.isBinary) {
+        if (exp.operand2 == "") {
+            exp.operand2 = exp.operand1;
+        }
+        exp.unaryOps2.push(operator);
+    }
+    else {
+        exp.unaryOps1.push(operator);
+    }
+
+    resultState = true;
+    lastKey = key.Operator;
+    handleExpDisplay(false);
+    handleFieldDisplay(false);
+}
+
+const handleBinaryOp = (operator) => {
+    if (exp.isBinary) {
+        if (exp.operand2 == "")
+            exp.operand1 = performAllUnaryOps(exp.operand1, exp.unaryOps1);
+        else
+            exp.operand1 = performFlatExp(exp);
+        exp.operand2 = "";
+        exp.unaryOps2 = [];
+        exp.unaryOps1 = [];
+        // create history
+    } else {
+        exp.isBinary = true;
+    }
+    exp.binaryOp = operator;
+    resultState = true;
+    lastKey = key.Operator;
+    handleExpDisplay(false);
+    handleFieldDisplay(false);
+}
+
+/* 
+    =========================
+      HANDLING EQUAL BUTTON
+    =========================
+*/
+
+const handleEqualBtn = () => {
+    if (exp.isBinary && exp.operand2 == "") {
+        exp.operand2 = exp.operand1;
+    }
+    // create history
+    handleExpDisplay(true);
+    handleFieldDisplay(true);
+    exp.operand1 = performFlatExp(exp);
+    exp.operand2 = performAllUnaryOps(exp.operand2, exp.unaryOps2);
+    exp.unaryOps2 = [];
+    exp.unaryOps1 = [];
+    resultState = true;
+    lastKey = key.Equal;
+}
+
+
+/* 
+    ============================
+      HANDLING EVENT LISTENERS  
+    ============================
+*/
+
 
 window.addEventListener("resize", adjustResultTxt);
 document.addEventListener("keydown", handleKeys);
 for (let btn of typeBtns) {
-    btn.addEventListener("click", type);
+    btn.addEventListener("click", handleDigitInput);
 }
 
 backBtn.addEventListener("click", handleBackspace);
-clearEntryBtn.addEventListener("click", () => {
-        typeTxt.innerText = "0";
-})
-clearAllBtn.addEventListener("click", clearAllDisplay);
+clearEntryBtn.addEventListener("click", handleClearEntry);
+clearAllBtn.addEventListener("click", handleClearAll);
 
-plusBtn.addEventListener("click", () => handleBasicOp("+", op.Add));
-minBtn.addEventListener("click", () => handleBasicOp("-", op.Subtract));
-mulBtn.addEventListener("click", () => handleBasicOp("*", op.Multiply));
-divBtn.addEventListener("click", () => handleBasicOp("/", op.Divide));
+plusBtn.addEventListener("click", () => handleBinaryOp(binOp.Add));
+minBtn.addEventListener("click", () => handleBinaryOp(binOp.Subtract));
+mulBtn.addEventListener("click", () => handleBinaryOp(binOp.Multiply));
+divBtn.addEventListener("click", () => handleBinaryOp(binOp.Divide));
+
+percentBtn.addEventListener("click", handlePercentOp);
 signBtn.addEventListener("click", handleNegateOp);
+reciprocalBtn.addEventListener("click", () => handleUnaryOp(unOp.Reciprocal));
+squareBtn.addEventListener("click", () => handleUnaryOp(unOp.Square));
+sqRootBtn.addEventListener("click", () => handleUnaryOp(unOp.SqRoot));
 
 equalBtn.addEventListener("click", handleEqualBtn);
-
-/* 
-
-In case of error, pressing or clicking any button clears the display + shows the digit if that was the pressed button.
-result must not be editable with backspace.
-when exp contains final result, having =, pressing any digit should clear the exp.
-overflow: after 8.507648470899241e+9999
-*/
+delHistoryBtn.addEventListener("click", clearHistory);
