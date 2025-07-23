@@ -7,6 +7,13 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+@font-face {
+  font-family: 'SegoeFluentIcons';
+  src: url('Assets/Fonts/SegoeFluentIcons.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 *::-webkit-scrollbar {
     display: none;
 }
@@ -17,7 +24,7 @@ legend {
 
 body {
     display: flex;
-    background-color: #f3f3f3;
+    background-color: #f3f2f7;
     overflow: hidden;
 }
 main {
@@ -189,7 +196,7 @@ button {
         grid-area: 6 / 4 / 7 / 5;
         background-color: #0067c0;
         color: white;
-        font-size: 1.25rem;
+        font-size: 1.25rem !important;
         font-weight: 500;
 
         &:hover {
@@ -198,21 +205,50 @@ button {
     }
 
     & button {
-        background-color: #fAfAfA;
         margin: 0.0625rem ;
+        font-size: 1.375rem;
+        font-family: "Segoe UI", sans-serif;
         border-radius: 0.3125rem;
         border: 1px solid #e4e4e4;
         border-bottom: 1px solid #cccccc !important;
-        font-size: 1.375rem;
-        text-transform: uppercase;
+        background-color: #f8f8fc;
         &:hover {
             background-color: #f7f7f7;
         }
         &:active {
             color: #5f5f5f;
-            background-color: #f4f4f4;
+            background-color: #f5f6f9;
         }
+    }
 
+    & #percent-btn , fieldset > .icon-btn {
+        font-size: 1.1875rem;
+    }
+
+    & .icon-btn {
+        font-family: "SegoeFluentIcons";
+    }
+
+    & #sign-btn {
+        font-size: 1.625rem !important;
+    }
+
+    & #reciprocal-btn, sup {
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    & #reciprocal-btn > sup {
+            margin-right: -2px;
+            font-size: 1.0625rem;
+    }
+
+    & #sqr-btn sup {
+        margin-left: 2px;
+        font-size: 1rem;
+    }
+
+    & #clear-btns button {
+        font-size: 1.25rem;
     }
 }
 
@@ -299,7 +335,7 @@ button {
             }
 
             &:hover {
-                background-color: #ece9e8;
+                background-color: #eae9ee;
             }
         }
 
@@ -311,21 +347,26 @@ button {
             width: 100%;
             display: flex;
             justify-content: end;
-            background-color: #f3f3f3;
+            background-color: #f3f2f7;
         }
 
         & #del-history-btn {
-            width: 3rem;
+            width: 2.5rem;
             height: 2.5rem;
-            font-size: 1.125rem;
-            background-color: transparent;
             border-radius: 0.25rem;
             border: none;
-
+            background-color: #f3f2f7;
+            
             &:hover {
-                background-color: #eaeaea;
+                background-color: #eae9ee;
             }
+        }
 
+        & #del-history-btn > svg{
+            width: 2rem;
+            height: 1.25rem;
+            font-size: 1.125rem;
+            background-color: transparent;
         }
     }
 }
@@ -363,7 +404,7 @@ button {
 
 @media (max-width: 510px)
 {
-    #buttons-panel {
+    #buttons-panel { 
 
         #digits button {
             font-size: 1.0625rem;

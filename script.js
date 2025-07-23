@@ -1,3 +1,9 @@
+/*
+    ===================================
+      GLOBALLY ACCESSING DOM ELEMENTS  
+    ===================================
+*/
+
 let expTxt = document.querySelector("#exp");
 let typeTxt = document.querySelector("#type");
 let buttons = document.querySelector("#buttons-panel");
@@ -48,7 +54,17 @@ const handleDigitInput = (event = null, str = "") => {
     let oldTxt = (exp.isBinary? exp.operand2 : exp.operand1).toString();
     if (resultState) {
         oldTxt = "0";
+        if (exp.isBinary) {
+            exp.operand2 = "";
+            exp.unaryOps2 = [];
+        }
+        else {
+            setExpTxt(readFlatExp(exp));
+            createHistoryItem(exp);
+            exp.unaryOps1 = [];
+        }
     }
+    
     let newTxt = str;
     if (event != null) {
         newTxt = event.target.innerText;
@@ -91,6 +107,7 @@ const getInputLimit = (newTxt, oldTxt) => {
     }
     return charLimit;
 };
+
 
 /* 
     =================
@@ -160,6 +177,7 @@ const handleKeys = (event) => {
         lastKey = key.Operator;
     }
 }
+
 
 /* 
     ====================
@@ -290,6 +308,11 @@ const addCommas = (str) => {
     if (str[0] == "-")
         result = "-" + result; 
     return result;
+};
+
+const setDelHistBtnColor = (hexStr) => {
+    let gElem = document.querySelector("#g-elem");
+    gElem.setAttribute("fill", "#" + hexStr );
 };
 
 const adjustResultTxt = () => {
@@ -504,6 +527,7 @@ const getNumOfOps = (expStr) => {
         return 2;
 }
 
+
 /* 
     =============================
       HANDLING OPERATOR BUTTONS
@@ -585,6 +609,7 @@ const handleBinaryOp = (operator) => {
     handleFieldDisplay(false);
 }
 
+
 /* 
     =========================
       HANDLING EQUAL BUTTON
@@ -598,6 +623,7 @@ const handleEqualBtn = () => {
     // create history
     handleExpDisplay(true);
     handleFieldDisplay(true);
+    createHistoryItem(exp);
     exp.operand1 = performFlatExp(exp);
     exp.operand2 = performAllUnaryOps(exp.operand2, exp.unaryOps2);
     exp.unaryOps2 = [];
@@ -608,11 +634,88 @@ const handleEqualBtn = () => {
 
 
 /* 
+    ====================
+      HANDLING HISTORY
+    ====================
+*/
+
+const createHistoryItem = (exp, key = "") => {
+    let emptyMsg = document.querySelector("#empty-msg");
+    emptyMsg.style.display = "none";
+    let list = document.querySelector("#history-list");
+    let item = document.createElement("li");
+    let hExp = document.createElement("pre");
+    let hResult = document.createElement("pre");
+    item.classList.add("item");
+    hExp.classList.add("h-exp");
+    hResult.classList.add("h-result");
+    hExp.innerText = addMoreSpace(readFlatExp(exp), exp) + " =";
+    hResult.innerText = performFlatExp(exp);
+    if (key == "") {
+        key = "hist_" + list.children.length;
+        localStorage.setItem(key, JSON.stringify(exp));
+    }
+    item.setAttribute("data-key", key);
+    item.append(hExp);
+    item.append(hResult);
+    item.addEventListener("click", fetchHistoryItem);
+    list.insertBefore(item, list.firstChild);
+    function addMoreSpace(str, hExp) {
+        let result = "";
+        for (let i = 0; i < str.length; i++) {
+            if (hExp.isBinary && str[i] == hExp.binaryOp){
+                result += "  " + str[i] + "  ";
+            }
+            else{
+                result += str[i];
+            }
+        }
+        return result;
+    }
+};
+
+const fetchHistoryItem = (event) => {
+    let item = event.currentTarget;
+    let key = item.dataset.key;
+    exp = JSON.parse(localStorage.getItem(key));
+    handleExpDisplay(false);
+    handleFieldDisplay(false);
+};
+
+const loadHistory = () => {
+    let keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("hist")) {
+            keys.push(key);
+        }
+    }
+    if (keys.length > 0) {
+        keys.sort((a,b) => {
+            return a.slice(5) - b.slice(5);
+        });
+        for (let i = 0; i < keys.length; i++) {
+            let exp = JSON.parse(localStorage.getItem(keys[i]));
+            createHistoryItem(exp, keys[i]);
+        }
+    }
+}
+
+const clearHistory = () => {
+    let emptyMsg = document.querySelector("#empty-msg");
+    emptyMsg.style.display = "flex";
+    let list = document.querySelector("#history-list");
+    list.innerHTML = "";
+};
+
+loadHistory();
+
+
+/* 
     ============================
       HANDLING EVENT LISTENERS  
     ============================
 */
-
 
 window.addEventListener("resize", adjustResultTxt);
 document.addEventListener("keydown", handleKeys);
@@ -637,3 +740,6 @@ sqRootBtn.addEventListener("click", () => handleUnaryOp(unOp.SqRoot));
 
 equalBtn.addEventListener("click", handleEqualBtn);
 delHistoryBtn.addEventListener("click", clearHistory);
+delHistoryBtn.addEventListener("mousedown", () => setDelHistBtnColor("777777"));
+delHistoryBtn.addEventListener("mouseup", () => setDelHistBtnColor("333333"));
+delHistoryBtn.addEventListener("mouseleave", () => setDelHistBtnColor("333333"));
