@@ -42,6 +42,10 @@ button {
 /* Min = 590: btns = 360, other = 230 */
 /* Max = 970: btns = 650, other = 320 */
 
+.icon-btn {
+    font-family: "SegoeFluentIcons" !important;
+}
+
 #title-bar {
     height: 6vh;
     padding-top: 0.5rem;
@@ -225,10 +229,6 @@ button {
         font-size: 1.1875rem;
     }
 
-    & .icon-btn {
-        font-family: "SegoeFluentIcons";
-    }
-
     & #sign-btn {
         font-size: 1.625rem !important;
     }
@@ -353,20 +353,19 @@ button {
         & #del-history-btn {
             width: 2.5rem;
             height: 2.5rem;
+            font-size: 1.125rem;
             border-radius: 0.25rem;
             border: none;
+            color: #333333;
             background-color: #f3f2f7;
             
             &:hover {
                 background-color: #eae9ee;
             }
-        }
 
-        & #del-history-btn > svg{
-            width: 2rem;
-            height: 1.25rem;
-            font-size: 1.125rem;
-            background-color: transparent;
+            &:active {
+                color: #777777;
+            }
         }
     }
 }

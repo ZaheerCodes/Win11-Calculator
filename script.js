@@ -310,11 +310,6 @@ const addCommas = (str) => {
     return result;
 };
 
-const setDelHistBtnColor = (hexStr) => {
-    let gElem = document.querySelector("#g-elem");
-    gElem.setAttribute("fill", "#" + hexStr );
-};
-
 const adjustResultTxt = () => {
     let parent = typeTxt.parentElement;
     let maxFont = 72;
@@ -740,6 +735,3 @@ sqRootBtn.addEventListener("click", () => handleUnaryOp(unOp.SqRoot));
 
 equalBtn.addEventListener("click", handleEqualBtn);
 delHistoryBtn.addEventListener("click", clearHistory);
-delHistoryBtn.addEventListener("mousedown", () => setDelHistBtnColor("777777"));
-delHistoryBtn.addEventListener("mouseup", () => setDelHistBtnColor("333333"));
-delHistoryBtn.addEventListener("mouseleave", () => setDelHistBtnColor("333333"));
