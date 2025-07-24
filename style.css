@@ -1,17 +1,74 @@
+:root[data-theme="light"] {
+    --bg: #f3f2f8;
+    --bg_hover: #eae9ef;
+    --bg-text-dim: #616161; /* All expressions, Tab hover */
+    --theme-btn-text: #a8a8a8;
+    --theme-btn-shadow: #a8a8a888;
+    --dim-btn: #f9f8fa;
+    --dim-btn_hover: #f5f6f9;
+    --dim-btn_click: #f4f4fa;
+    --dim-btn-text_click: #5f5f5f;
+    --dig-btn: #ffffff;
+    --dig-btn_hover: #fcfcfd;
+    --dig-btn_click: #f8f8fc;
+    --dig-btn-text_click: #5e5e60;
+    --blue: #0067c0;        /* Equal button, Tab underline */
+    --blue_hover: #1975C5;
+    --blue_click: #3083CB;
+    --blue-text_click: #c0d9ef;
+    --tab: #1b1b1b;
+    --tab_click: #8c8c90;
+    --del-btn: #1f1f1f;
+    --del-btn_click: #656668;
+    --plain-text: #000000;
+
+    & * {
+        color: black;
+    }
+}
+
+:root[data-theme="dark"] {
+    --bg: #202020;
+    --bg_hover: #2d2d2f;
+    --bg-text-dim: #a4a4a4; /* All expressions, Tab hover */
+
+    --theme-btn-text: #484848;
+    --theme-btn-shadow: #48484888;
+
+    --dim-btn: #323232;
+    --dim-btn_hover: #3b3b3b;
+    --dim-btn_click: #323232;
+    --dim-btn-text_click: #afafb1;
+
+    --dig-btn: #3b3b3b;
+    --dig-btn_hover: #323232;
+    --dig-btn_click: #28282b;
+    --dig-btn-text_click: #cccccc;
+
+    --blue: #4cc2ff;        /* Equal button, Tab underline */
+    --blue_hover: #47b1e9;
+    --blue_click: #42a1d3;
+    --blue-text_click: #286280;
+
+    --tab: #f4f4f4;
+    --tab_click: #7f7f81;
+    --del-btn: #f1f1f1;
+    --del-btn_click: #bbbbbb;
+
+    --plain-text: #ffffff;
+
+    & * {
+        color: white;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;
     line-height: 1;
     position: relative;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-@font-face {
-  font-family: 'SegoeFluentIcons';
-  src: url('Assets/Fonts/SegoeFluentIcons.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
 *::-webkit-scrollbar {
@@ -24,7 +81,7 @@ legend {
 
 body {
     display: flex;
-    background-color: #f3f2f7;
+    background-color: var(--bg);
     overflow: hidden;
 }
 main {
@@ -43,48 +100,83 @@ button {
 /* Max = 970: btns = 650, other = 320 */
 
 .icon-btn {
-    font-family: "SegoeFluentIcons" !important;
+    font-family: "Segoe Icons" !important;
 }
 
 #title-bar {
     height: 6vh;
-    padding-top: 0.5rem;
-    padding-left: 0.25rem;
+    padding-top: 1rem;
+    padding-left: 0.5rem;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-
-    & * {
-        line-height: 1;
-    }
+    gap: 1rem;
 
     & h3 {
+        line-height: 1;
         margin-top: -0.0625rem;
         font-weight: 500;
         font-size: 1.25rem;
         text-transform: capitalize;
     }
+}
 
-    & button {
-        width: 2.5rem;
-        height: 2.5rem;
-        font-size: 1.125rem;
-        background-color: transparent;
-        border-radius: 0.25rem;
-        border: none;
-
-        &:hover {
-            background-color: #eaeaea;
-        }
-
-        & i {
-            font-size: 0.875rem;
-            transform: scaleX(1.25);
-            color: #666666;
-        }
+#theme-btn {
+    width: 58px;
+    height: 32.5px;
+    padding: 0 2px;
+    background-color: var(--bg);
+    border-radius: 100px;
+    border: none;
+    box-shadow: 0px 0px 1px 0.5px var(--theme-btn-shadow);
+    &:active span {
+        background-color: var(--plain-text);
     }
 
+    & > p, & > i{
+        line-height: 1;
+        color: var(--theme-btn-text);
+    }
 
+    & p {
+        font-size: 15px;
+        font-family: 'Segoe Icons';
+    }
+
+    & i {
+        margin-bottom: -1px;
+        font-size: 17px;
+    }
+
+    & > p {
+        position: absolute;
+        top: 9px;
+        left: 6px;
+        width: 19px;
+        height: 19px;
+    }
+
+    & > i {
+        position: absolute;
+        top: 8px;
+        right: 6px;
+        width: 19px;
+        height: 19px;
+    }
+    
+    & span {
+        position: absolute;
+        top: 3px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50px;
+        background-color: var(--blue);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        & p, i {
+            color: var(--bg);
+        }
+    }
 }
 
 #output-bar {
@@ -100,11 +192,10 @@ button {
         min-height: 0.875rem;
         font-size: 0.9375rem;
         letter-spacing: -0.1px;
-        color: #616161;
+        color: var(--bg-text-dim);
     }
 
     & #type {
-        /* display: none; */
         height: 100%;
         padding-top: 0.75rem;
         font-size: 4.5rem;
@@ -135,7 +226,14 @@ button {
         border: none;
 
         &:hover {
-            background-color: #eaeaea;
+            background-color: var(--bg_hover);
+        }
+    }
+
+    & .disabled-btn {
+        color: var(--tab_click);
+        &:hover {
+            background-color: var(--bg);
         }
     }
 }
@@ -183,45 +281,54 @@ button {
 
         & button {
             font-size: 1.375rem;
-            background-color: #ffffff;
+            background-color: var(--dig-btn);
         }
 
         & button:hover {
-            background-color: #fcfcfc;
+            background-color: var(--dig-btn_hover);
         }
 
-        & button:active {
-            color: #5f5f5f;
-            background-color: #f9f9f9;
+        & button:active, & button.active {
+            color: var(--dig-btn-text_click);
+            background-color: var(--dig-btn_click);
         }
     }
 
     & #equal-btn {
         grid-area: 6 / 4 / 7 / 5;
-        background-color: #0067c0;
-        color: white;
+        background-color: var(--blue);
+        color: var(--dim-btn);
         font-size: 1.25rem !important;
         font-weight: 500;
+        border: 1px solid var(--blue) !important;
 
         &:hover {
-            background-color: #1975c5;
+            background-color: var(--blue_hover);
+            border: 1px solid var(--blue_hover) !important;
+        }
+
+        &:active, &.active{
+            color: var(--blue-text_click);
+            background-color: var(--blue_click);
+            border: 1px solid var(--blue_click) !important;
         }
     }
 
     & button {
         margin: 0.0625rem ;
         font-size: 1.375rem;
-        font-family: "Segoe UI", sans-serif;
         border-radius: 0.3125rem;
-        border: 1px solid #e4e4e4;
-        border-bottom: 1px solid #cccccc !important;
-        background-color: #f8f8fc;
+        background-color: var(--dim-btn);
+        border: none;
         &:hover {
-            background-color: #f7f7f7;
+            background-color: var(--dim-btn_hover);
         }
-        &:active {
-            color: #5f5f5f;
-            background-color: #f5f6f9;
+        &:active, &.active {
+            color: var(--dim-btn-text_click);
+            background-color: var(--dim-btn_click);
+            & * {
+                color: var(--dig-btn-text_click) !important;
+            }
         }
     }
 
@@ -252,6 +359,13 @@ button {
     }
 }
 
+:root[data-theme="light"] #buttons-panel{
+    & button {
+        border: 1px solid #e4e4e4;
+        border-bottom: 1px solid #cccccc !important;
+    }
+}
+
 #storage-panel {
     display: flex;
     flex-direction: column;
@@ -272,10 +386,13 @@ button {
             flex-direction: column;
             align-items: center;
             gap: 0.625rem;
-            color: black;
 
             &:hover {
-                color: #616161;
+                color: var(--bg-text-dim);
+            }
+
+            &:active {
+                color: var(--tab_click);
             }
         }
 
@@ -284,13 +401,17 @@ button {
             height: 0.225rem;
             width: 1.0625rem;
             border-radius: 0.25rem;
-            background-color: #0067c0;
+            background-color: var(--blue);
             z-index: 1;
         }
 
         & .active:hover::after {
-             background-color: #1975c5;
-       }
+             background-color: var(--blue_hover);
+        }
+
+        & .active:active::after {
+             background-color: var(--blue_click);
+        }
     }
     
     & #history {
@@ -325,7 +446,7 @@ button {
 
             & .h-exp {
                 font-size: 0.875rem;
-                color: #616161;
+                color: var(--bg-text-dim);
             }
 
             & .h-result {
@@ -335,7 +456,7 @@ button {
             }
 
             &:hover {
-                background-color: #eae9ee;
+                background-color: var(--bg_hover);
             }
         }
 
@@ -347,7 +468,7 @@ button {
             width: 100%;
             display: flex;
             justify-content: end;
-            background-color: #f3f2f7;
+            background-color: var(--bg);
         }
 
         & #del-history-btn {
@@ -356,15 +477,15 @@ button {
             font-size: 1.125rem;
             border-radius: 0.25rem;
             border: none;
-            color: #333333;
-            background-color: #f3f2f7;
+            color: var(--del-btn);
+            background-color: var(--bg);
             
             &:hover {
-                background-color: #eae9ee;
+                background-color: var(--bg_hover);
             }
 
             &:active {
-                color: #777777;
+                color: var(--del-btn_click);
             }
         }
     }

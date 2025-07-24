@@ -1,6 +1,6 @@
 /*
     ===================================
-      GLOBALLY ACCESSING DOM ELEMENTS  
+    GLOBALLY ACCESSING DOM ELEMENTS  
     ===================================
 */
 
@@ -25,7 +25,7 @@ let squareBtn = buttons.querySelector("#sqr-btn");
 let sqRootBtn = buttons.querySelector("#sqrt-btn");
 
 let equalBtn = buttons.querySelector("#equal-btn");
-
+let themeBtn = document.querySelector("#theme-btn");
 let delHistoryBtn = document.querySelector("#storage-panel #del-history-btn");
 
 const key = Object.freeze({
@@ -119,65 +119,128 @@ const handleKeys = (event) => {
 
     if ("0123456789.".includes(event.key.toString())) {
         handleDigitInput(null, event.key.toString());
+        digitPressed(event.key.toString());
         lastKey = key.Digit;
     }
 
     else if (event.key == "Backspace") {
         handleBackspace();
+        keyPressEffect("#backspace-btn");
         lastKey = key.Control;
     }
 
     else if (event.key == "Delete") {
         handleClearEntry();
+        keyPressEffect("#clear-entry-btn");
         lastKey = key.Control;
     }
 
     else if (event.key == "Escape") {
         handleClearAll();
+        keyPressEffect("#clear-all-btn");
         lastKey = key.Control;
     }
 
     else if (event.key == "Enter" || event.key == "=") {
         handleEqualBtn();
+        keyPressEffect("#equal-btn");
         lastKey = key.Equal;
     }
 
     else if (event.key == "+") {
         handleBinaryOp(binOp.Add);
+        keyPressEffect("#plus-btn");
         lastKey = key.Operator;
     }
 
     else if (event.key == "-") {
         handleBinaryOp(binOp.Subtract);
+        keyPressEffect("#min-btn");
         lastKey = key.Operator;
     }
 
     else if (event.key == "*") {
         handleBinaryOp(binOp.Multiply);
+        keyPressEffect("#mul-btn");
         lastKey = key.Operator;
     }
 
     else if (event.key == "/") {
         handleBinaryOp(binOp.Divide);
+        keyPressEffect("#div-btn");
         lastKey = key.Operator;
     }
 
     else if (event.key == "q") {
         handleUnaryOp(unOp.Square);
+        keyPressEffect("#sqr-btn");
         lastKey = key.Operator;
     }
 
     else if (event.key == "r") {
         handleUnaryOp(unOp.Reciprocal);
+        keyPressEffect("#reciprocal-btn");
         lastKey = key.Operator;
     }
 
     else if (event.key == "@") {
         handleUnaryOp(unOp.SqRoot);
+        keyPressEffect("#sqrt-btn");
         lastKey = key.Operator;
+    }
+
+    else if (event.key == "%") {
+        handlePercentOp();
+        keyPressEffect("#percent-btn");
+        lastKey = key.Operator;
+    }
+
+}
+
+const digitPressed = (str) => {
+    switch(str) {
+        case "0":
+            (keyPressEffect("#digits #d0-btn"));
+            break;
+        case "1":
+            (keyPressEffect("#digits #d1-btn"));
+            break;
+        case "2":
+            (keyPressEffect("#digits #d2-btn"));
+            break;
+        case "3":
+            (keyPressEffect("#digits #d3-btn"));
+            break;
+        case "4":
+            (keyPressEffect("#digits #d4-btn"));
+            break;
+        case "5":
+            (keyPressEffect("#digits #d5-btn"));
+            break;
+        case "6":
+            (keyPressEffect("#digits #d6-btn"));
+            break;
+        case "7":
+            (keyPressEffect("#digits #d7-btn"));
+            break;
+        case "8":
+            (keyPressEffect("#digits #d8-btn"));
+            break;
+        case "9":
+            (keyPressEffect("#digits #d9-btn"));
+            break;
+        case ".":
+            (keyPressEffect("#digits #dot-btn"));
+            break;
     }
 }
 
+const keyPressEffect = (selector) => {
+    let btn = document.querySelector(selector);
+    btn.classList.add("active");
+    setTimeout(() => {btn.classList.remove("active");}, 100);
+    return true;
+}
 
 /* 
     ====================
@@ -282,6 +345,12 @@ const removeCommas = (str) => {
 
 const addCommas = (str) => {
     str = removeCommas(str);
+
+    // Check if it's a non-numeric error message:
+    if ("abcdefghijklmnopqrstuvwxyz".includes(str[1])) {
+        return str;
+    }
+
     let result = "";
     let temp = str;
     let decIdx = -1;
@@ -696,14 +765,130 @@ const loadHistory = () => {
     }
 }
 
-const clearHistory = () => {
+const clearHistory = (hardReset) => {
     let emptyMsg = document.querySelector("#empty-msg");
     emptyMsg.style.display = "flex";
     let list = document.querySelector("#history-list");
     list.innerHTML = "";
+    if (hardReset) {
+        localStorage.clear();
+    }
 };
 
 loadHistory();
+
+
+/* 
+    ======================
+      HANDLING APP THEME
+    ======================
+*/
+
+const setTheme = (str) => {
+    localStorage.setItem("theme", str);
+};
+
+const getTheme = (setPosition = true) => {
+    let theme = localStorage.getItem("theme");
+    if (theme == null) {
+        theme = "light";
+        setTheme(theme);
+    }
+    let root = document.documentElement;
+    let btn = document.querySelector("#active-theme");
+    if (theme == "dark") {
+        root.setAttribute("data-theme", "dark");
+        btn.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+        if (setPosition) {
+            btn.style.left = "";
+            btn.style.right = "3px";
+        }
+    }
+    else {
+        root.setAttribute("data-theme", "light");
+        btn.innerHTML = `<p class="dim">&#xf08c;</p>`;
+        if (setPosition) {
+            btn.style.left = "3px";
+            btn.style.right = "";
+        }
+    }
+    return theme;
+};
+
+const switchTheme = (setPosition = true) => {
+    let root = document.documentElement;
+    let curTheme = root.getAttribute("data-theme");
+    if(curTheme == "light") {
+        setTheme("dark")
+    }
+    else {
+        setTheme("light");
+    }
+    getTheme(setPosition);
+};
+
+getTheme();
+
+const handleThemeBtn = (event) => {
+    let btn = event.currentTarget.querySelector("#active-theme");
+    let child = btn.firstElementChild;
+    let transVal = 0;
+    let rotateVal = 0;
+    let theme = document.documentElement.getAttribute("data-theme");
+    if (theme == "light") {
+        transVal = "26px";
+        rotateVal = "180deg";
+    }
+    else {
+        transVal = "-26px";
+        rotateVal = "-270deg";
+    }
+    const translation = btn.animate(
+        [
+            {
+                transform: `translateX(0)`,
+            },
+            {
+                transform: `translateX(${transVal})`,
+            }
+        ],
+        {
+            duration: 500,
+            easing: 'ease-in-out',
+        }
+    );
+
+    const rotation = child.animate(
+        [
+            {
+                transform: "rotateZ(0)",
+                opacity: "1"
+            },
+            {
+                transform: `rotateZ(${rotateVal})`,
+                opacity: "0.2"
+            }
+        ],
+        {
+            duration: 400,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        }
+    );
+    rotation.finished.then(() => switchTheme(false));
+
+    translation.finished.then(() => {
+        if (theme == "light") {
+            btn.style.right = "3px";
+            btn.style.left = "";
+        }
+        else {
+            btn.style.right = "";
+            btn.style.left = "3px";
+        }        
+    });
+
+}
 
 
 /* 
@@ -717,6 +902,7 @@ document.addEventListener("keydown", handleKeys);
 for (let btn of typeBtns) {
     btn.addEventListener("click", handleDigitInput);
 }
+themeBtn.addEventListener("click", handleThemeBtn);
 
 backBtn.addEventListener("click", handleBackspace);
 clearEntryBtn.addEventListener("click", handleClearEntry);
@@ -734,4 +920,4 @@ squareBtn.addEventListener("click", () => handleUnaryOp(unOp.Square));
 sqRootBtn.addEventListener("click", () => handleUnaryOp(unOp.SqRoot));
 
 equalBtn.addEventListener("click", handleEqualBtn);
-delHistoryBtn.addEventListener("click", clearHistory);
+delHistoryBtn.addEventListener("click", () => clearHistory(true));
