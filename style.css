@@ -12,6 +12,7 @@
     --dig-btn_hover: #fcfcfd;
     --dig-btn_click: #f8f8fc;
     --dig-btn-text_click: #5e5e60;
+    --err-btn: #9c9c9c;
     --blue: #0067c0;        /* Equal button, Tab underline */
     --blue_hover: #1975C5;
     --blue_click: #3083CB;
@@ -42,8 +43,10 @@
 
     --dig-btn: #3b3b3b;
     --dig-btn_hover: #323232;
-    --dig-btn_click: #28282b;
+    --dig-btn_click: #282828;
     --dig-btn-text_click: #cccccc;
+
+    --err-btn: #6b6b6b;
 
     --blue: #4cc2ff;        /* Equal button, Tab underline */
     --blue_hover: #47b1e9;
@@ -61,6 +64,26 @@
         color: white;
     }
 }
+
+:root {
+    --heading-font: 1.25rem;
+    --output-exp-font: 0.9375rem:
+    --output-type-font: 4.5rem;
+    --dig-btn-font: 1.375rem;
+    --dim-btn-font: 1.375rem;
+    --equal-btn-font: 1.25rem;
+    --icon-btn-font: 1.1875rem;
+    --sign-btn-font: 1.625rem;
+    --hist-exp-font: 0.875rem;
+    --hist-result-font: 1.25rem;
+    --hist-del-btn-font: 1.125rem;
+    --tab-btn-font: 0.875rem;
+    --empty-msg-font: 0.875rem;
+    --clear-btn-font: 1.25rem;
+    --reciproc-btn-font: 1.125rem;
+    --sqr-btn-font: 1rem;
+}
+
 
 * {
     margin: 0;
@@ -96,8 +119,6 @@ fieldset {
 button {
     line-height: 1;
 }
-/* Min = 590: btns = 360, other = 230 */
-/* Max = 970: btns = 650, other = 320 */
 
 .icon-btn {
     font-family: "Segoe Icons" !important;
@@ -114,8 +135,8 @@ button {
     & h3 {
         line-height: 1;
         margin-top: -0.0625rem;
-        font-weight: 500;
-        font-size: 1.25rem;
+        font-weight: 600;
+        font-size: var(--heading-font);
         text-transform: capitalize;
     }
 }
@@ -183,14 +204,14 @@ button {
     height: 20.7vh;
     width: 100%;
     padding-right: 0.75rem;
-    padding-top: 1.625rem;
+    padding-top: 4vh;
     display: flex;
     flex-direction: column;
     align-items: end;
 
     & #exp {
         min-height: 0.875rem;
-        font-size: 0.9375rem;
+        font-size: var(--output-exp-font);
         letter-spacing: -0.1px;
         color: var(--bg-text-dim);
     }
@@ -198,8 +219,8 @@ button {
     & #type {
         height: 100%;
         padding-top: 0.75rem;
-        font-size: 4.5rem;
-        font-weight: 500;
+        font-size: var(--output-type-font);
+        font-weight: 600;
         line-height: 1;
     }
 }
@@ -235,6 +256,10 @@ button {
         &:hover {
             background-color: var(--bg);
         }
+    }
+
+    & #m-view-btn {
+        display: none;
     }
 }
 
@@ -280,7 +305,7 @@ button {
         grid-area: 3 / 1 / 7 / 4 ;
 
         & button {
-            font-size: 1.375rem;
+            font-size: var(--dig-btn-font);
             background-color: var(--dig-btn);
         }
 
@@ -298,7 +323,7 @@ button {
         grid-area: 6 / 4 / 7 / 5;
         background-color: var(--blue);
         color: var(--dim-btn);
-        font-size: 1.25rem !important;
+        font-size: var(--equal-btn-font) !important;
         font-weight: 500;
         border: 1px solid var(--blue) !important;
 
@@ -316,7 +341,7 @@ button {
 
     & button {
         margin: 0.0625rem ;
-        font-size: 1.375rem;
+        font-size: var(--dim-btn-font);
         border-radius: 0.3125rem;
         background-color: var(--dim-btn);
         border: none;
@@ -327,17 +352,17 @@ button {
             color: var(--dim-btn-text_click);
             background-color: var(--dim-btn_click);
             & * {
-                color: var(--dig-btn-text_click) !important;
+                color: var(--dig-btn-text_click);
             }
         }
     }
 
-    & #percent-btn , fieldset > .icon-btn {
-        font-size: 1.1875rem;
+    & div > .icon-btn, fieldset > .icon-btn {
+        font-size: var(--icon-btn-font) !important;
     }
 
     & #sign-btn {
-        font-size: 1.625rem !important;
+        font-size: var(--sign-btn-font) !important;
     }
 
     & #reciprocal-btn, sup {
@@ -345,17 +370,17 @@ button {
     }
 
     & #reciprocal-btn > sup {
-            margin-right: -2px;
-            font-size: 1.0625rem;
+        margin-right: -2px;
+        font-size: var(--reciproc-btn-font);
     }
 
     & #sqr-btn sup {
         margin-left: 2px;
-        font-size: 1rem;
+        font-size: var(--sqr-btn-font);
     }
 
     & #clear-btns button {
-        font-size: 1.25rem;
+        font-size: var(--clear-btn-font);
     }
 }
 
@@ -471,6 +496,7 @@ button {
             background-color: var(--bg);
         }
 
+
         & #del-history-btn {
             width: 2.5rem;
             height: 2.5rem;
@@ -495,45 +521,95 @@ button {
 /* --------------------------------- MEDIA QUERIES --------------------------------- */
 /* --------------------------------------------------------------------------------- */
 
-@media (min-width: 560px) {
-
-    #m-view-btn {
-        display: none;
-    }
-}
-
 @media (max-height: 680px) {
     #output-bar #type {
         font-size: 3rem;
     }
 }
 
+@media (min-width: 800px) and (min-height: 670px) {
+
+    :root {
+        --dig-btn-font: 1.375rem;
+        --dim-btn-font: 1.375rem;
+        --icon-btn-font: 1.1875rem;
+        --equal-btn-font: 1.25rem;
+        --clear-btn-font: 1.25rem;
+        --sign-btn-font: 1.625rem;
+        --reciproc-btn-font: 1.125rem;
+        --sqr-btn-font: 1rem;
+    }
+}
+
+@media (max-width: 800px) {
+
+    :root {
+        --dig-btn-font: 1.125rem;
+        --dim-btn-font: 1rem;
+        --clear-btn-font: 0.9375rem;
+        --icon-btn-font: 0.875rem;
+        --equal-btn-font: 1rem;
+        --sign-btn-font: 1.3125rem;
+        --reciproc-btn-font: 0.75rem;
+        --sqr-btn-font: 0.6875rem;
+    }
+}
+
 @media (max-width: 560px) {
+
+    :root {
+        --dig-btn-font: 1.375rem;
+        --dim-btn-font: 1.375rem;
+        --icon-btn-font: 1.1875rem;
+        --equal-btn-font: 1.25rem;
+        --clear-btn-font: 1.25rem;
+        --sign-btn-font: 1.625rem;
+        --reciproc-btn-font: 1.125rem;
+        --sqr-btn-font: 1rem;
+    }
 
     main {
         width: 100vw;
     }
 
+    #m-view-btn {
+        display: block !important;
+    }
+
     #storage-panel {
         position: absolute;
+        display: none;
         & > * {
             visibility: hidden;
         }
     }
 }
 
-@media (max-width: 510px)
-{
-    #buttons-panel { 
+@media (max-width: 500px), (max-height: 670px) {
 
-        #digits button {
-            font-size: 1.0625rem;
-        }
-
-        & button {
-            font-size: 0.875rem;            
-        }
+    :root {
+        --dig-btn-font: 1.125rem;
+        --dim-btn-font: 1rem;
+        --clear-btn-font: 0.9375rem;
+        --icon-btn-font: 0.875rem;
+        --equal-btn-font: 1rem;
+        --sign-btn-font: 1.3125rem;
+        --reciproc-btn-font: 0.75rem;
+        --sqr-btn-font: 0.6875rem;
     }
+}
 
 
+:root[data-theme="light"] .in-error-state {
+    border: 1px solid #e4e4e4 !important;
+}
+
+.in-error-state, .in-error-state > sup {
+    color: var(--err-btn) !important;
+    background-color: var(--dig-btn_click) !important;
+
+    &:hover, &:active {
+        color: var(--err-btn) !important;
+        background-color: var(--dig-btn_click) !important;
+    }
 }

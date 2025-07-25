@@ -1,6 +1,6 @@
 /*
     ===================================
-    GLOBALLY ACCESSING DOM ELEMENTS  
+      GLOBALLY ACCESSING DOM ELEMENTS  
     ===================================
 */
 
@@ -37,8 +37,11 @@ const key = Object.freeze({
 });
 
 let lastKey = key.None;
-let resultState = false;    // true when: equal, unary, or binary operator btn is pressed
-                            // false again when: some digit or clear all btn is pressed
+let errorState = false;
+let resultState = false;
+    // true when: equal, unary, or binary operator btn is pressed
+    // false again when: some digit or clear all btn is pressed
+
 
 /*
     ===================
@@ -48,9 +51,12 @@ let resultState = false;    // true when: equal, unary, or binary operator btn i
 
 const handleDigitInput = (event = null, str = "") => {
 
-    if (lastKey == key.Equal) {
+    if (lastKey == key.Equal || errorState) {
         handleClearAll();
+        disableErrorState();
+        errorState = false;
     }
+
     let oldTxt = (exp.isBinary? exp.operand2 : exp.operand1).toString();
     if (resultState) {
         oldTxt = "0";
@@ -67,7 +73,7 @@ const handleDigitInput = (event = null, str = "") => {
     
     let newTxt = str;
     if (event != null) {
-        newTxt = event.target.innerText;
+        newTxt = event.target.innerHTML;
     }
     let inputLimit = getInputLimit(newTxt, oldTxt);
     let oldTxtHasDac = oldTxt.includes(".");
@@ -237,9 +243,12 @@ const digitPressed = (str) => {
 
 const keyPressEffect = (selector) => {
     let btn = document.querySelector(selector);
-    btn.classList.add("active");
-    setTimeout(() => {btn.classList.remove("active");}, 100);
-    return true;
+    if (!btn.hasAttribute("disabled")) {
+        btn.classList.add("active");
+        setTimeout(() => {btn.classList.remove("active");}, 100);
+        return true;
+    }
+    return false;
 }
 
 /* 
@@ -249,19 +258,19 @@ const keyPressEffect = (selector) => {
 */
 
 const getTypeTxt = () => {
-    return document.querySelector("#type").innerText;
+    return document.querySelector("#type").innerHTML;
 };
 
 const setTypeTxt = (str) => {
-    document.querySelector("#type").innerText = str;
+    document.querySelector("#type").innerHTML = str;
 };
 
 const getExpTxt = () => {
-    return document.querySelector("#exp").innerText;
+    return document.querySelector("#exp").innerHTML;
 }
 
 const setExpTxt = (str) => {
-    document.querySelector("#exp").innerText = str;
+    document.querySelector("#exp").innerHTML = str;
 }
 
 const handleFieldDisplay = (equalPressed) => {
@@ -296,6 +305,12 @@ const handleFieldDisplay = (equalPressed) => {
             setTypeTxt(addCommas(performAllUnaryOps(exp.operand1, exp.unaryOps1)));
         }    
     }
+    let x = getTypeTxt().toLowerCase();
+    if (x == "overflow" ||
+        x == "invalid input" ||
+        x == "cannot divide by zero") {
+        enableErrorState();
+    }
     adjustResultTxt();
 };
 
@@ -317,17 +332,30 @@ const readFlatExp = (exp) => {
     let op1 = exp.operand1;
     let op2 = "";
     for (let i = 0; i < exp.unaryOps1.length; i++) {
-        op1 = exp.unaryOps1[i] + "( " + op1 + " )";        
+        op1 = getOperatorSymbol(exp.unaryOps1[i]) + "( " + op1 + " )";        
     }
     if (exp.isBinary) {
         op2 = exp.operand2;
         for (let i = 0; i < exp.unaryOps2.length; i++) {
-            op2 = exp.unaryOps2[i] + "( " + op2 + " )";        
+            op2 = getOperatorSymbol(exp.unaryOps2[i]) + "( " + op2 + " )";        
         }
         op2 = " " + op2;
     }
-    expStr += op1 + " " + exp.binaryOp + op2;
+    expStr += op1 + " " + getOperatorSymbol(exp.binaryOp) + op2;
     return expStr;
+
+    function getOperatorSymbol(str) {
+        switch(str) {
+            case "*":
+                return "&times;";
+            case "/":
+                return "&divide;";
+            case "sqrt":
+                return "&Sqrt;";
+            default:
+                return str;
+        }
+    }
 };
 
 const removeCommas = (str) => {
@@ -403,6 +431,8 @@ adjustResultTxt();
 */
 
 const handleBackspace = () => {
+    disableErrorState();
+
     if (!resultState) {
         if (exp.isBinary) {
             exp.operand2 = delLastDigit(exp.operand2);
@@ -426,6 +456,7 @@ const handleBackspace = () => {
 };
 
 const handleClearEntry = () => {
+    disableErrorState();
     if (exp.isBinary) {
         exp.operand2 = "0";
     }
@@ -438,6 +469,7 @@ const handleClearEntry = () => {
 };
 
 const handleClearAll = () => {
+    disableErrorState();
     let clearedExp = {
         isBinary: false,    binaryOp: "",
         operand1: "0",      operand2: "",
@@ -489,7 +521,7 @@ const performFlatExp = (exp) => {
     let result1 = performAllUnaryOps(exp.operand1, exp.unaryOps1);
     let result2 = exp.operand2;
     let total = result1;
-    if (exp.isBinary) {
+    if (exp.isBinary && exp.operand2 != "") {
         result2 = performAllUnaryOps(exp.operand2, exp.unaryOps2);
         total = evaluateBinaryOp(result1, result2, exp.binaryOp);
     }
@@ -507,51 +539,64 @@ const performAllUnaryOps = (operand, unaryArr) => {
 }
 
 const evaluateUnaryOp = (operand, operator) => {
-    let op = parseFloat(operand);
+    let op = new Decimal(operand);
     let result = 0;
     switch(operator) {
         case "negate":
-            result = -(op);
+            result = op.negated().toString();
             break;
         case "sqr":
-            result = op*op;
+            result = op.pow(2).toString();
             break;
         case "sqrt":
-            result = Math.sqrt(op);
+            if (op >= 0)
+                result = op.sqrt().toString();
+            else
+                result = "Invalid input";
             break;
         case "1/":
-            result = 1/op;
+            if (op != 0)
+                result = (new Decimal("1")).div(op).toString();
+            else
+                result = "Cannot divide by zero";
             break;
     }
-    return result;
+    return checkErrorMsg(result);
 };
 
 const evaluateBinaryOp = (operand1, operand2, operator) => {
-    let op1 = parseFloat(operand1);
-    let op2 = parseFloat(operand2);
+    let a = new Decimal(operand1);
+    let b = new Decimal(operand2);
     let result = 0;
     switch(operator) {
         case binOp.Add:
-            result = op1 + op2;
+            result = a.plus(b).toString();
             break;
         case binOp.Subtract:
-            result = op1 - op2;
+            result = a.minus(b).toString();
             break;
         case binOp.Multiply:
-            result = op1 * op2;
+            result = a.times(b).toString();
             break;
         case binOp.Divide:
-            if (op2 != 0)
-                result = op1 / op2;
+            if (b.toString() !== "0")
+               result = a.div(b).toString();
             else
-                typeTxt.innerText = "Cannot divide by zero";
+                result = "Cannot divide by zero";
             break;
     }
-    return result;
+    return checkErrorMsg(result);
 };
 
 const degToRadians = (deg) => {
     return (parseFloat(deg) * Math.PI ) / 180;
+};
+
+const checkErrorMsg = (str) => {
+    if (str == "Infinity" || str == "NaN")
+        return "Overflow";
+    else 
+        return str;
 };
 
 const getObjFromFlatExp = (expStr) => {
@@ -591,6 +636,34 @@ const getNumOfOps = (expStr) => {
         return 2;
 }
 
+const enableErrorState = () => {
+    errorState = true;
+    exp = {
+        isBinary: false,    binaryOp: "",
+        operand1: "",      operand2: "",
+        unaryOps1: [],      unaryOps2: []
+    };
+    toggleBtnsState();
+};
+
+const disableErrorState = () => {
+    if (errorState) {
+        errorState = false;
+        handleFieldDisplay(false);
+        handleExpDisplay(false);
+        toggleBtnsState();
+    }
+};
+
+const toggleBtnsState = () => {
+    let dotBtn = document.querySelector("#digits #dot-btn");
+    let btnArr = [];
+    btnArr.push(plusBtn, minBtn, mulBtn, divBtn, dotBtn, signBtn, percentBtn, reciprocalBtn, squareBtn, sqRootBtn);
+    for (const btn of btnArr) {
+        btn.classList.toggle("in-error-state");
+        btn.toggleAttribute("disabled");
+    }
+}
 
 /* 
     =============================
@@ -605,7 +678,7 @@ const handlePercentOp = () => {
         } else {
             exp.operand2 = performAllUnaryOps(exp.operand2, exp.unaryOps2);
         }
-        exp.operand2 = exp.operand2 * (exp.operand1 / 100);
+        exp.operand2 = (exp.operand2 * (exp.operand1 / 100)).toString();
         resultState = true;
         lastKey = key.Operator;
         handleFieldDisplay(false);
@@ -622,7 +695,7 @@ const handleNegateOp = () => {
             exp.unaryOps2.push(unOp.Negate);
             handleExpDisplay(false);
         } else if (exp.operand2 !== "0"){
-            exp.operand2 = -exp.operand2;
+            exp.operand2 = (new Decimal(exp.operand2)).negated().toString();
         }
     }
     else {
@@ -630,23 +703,43 @@ const handleNegateOp = () => {
             exp.unaryOps1.push(unOp.Negate);
             handleExpDisplay(false);
         } else if (exp.operand1 !== "0"){
-            exp.operand1 = -exp.operand1;
+            exp.operand1 = (new Decimal(exp.operand1)).negated().toString();
         }
     }
     lastKey = key.Operator;
     handleFieldDisplay(false);
 }
+
 const handleUnaryOp = (operator) => {
-    if (exp.isBinary) {
-        if (exp.operand2 == "") {
-            exp.operand2 = exp.operand1;
-        }
+    let tempCheck = removeCommas(getTypeTxt()) == performFlatExp(exp) && exp.isBinary;
+    let binOpPressed =  tempCheck && exp.operand2 == "";
+    let historyFetched = tempCheck && exp.operand2 != "";
+    if (historyFetched) {
+        exp.operand1 = performFlatExp(exp);
+    }
+    if (lastKey == key.Equal || historyFetched == true) {
+        exp.isBinary = false;
+        exp.binaryOp = "";
+        exp.operand2 = "";
+        exp.unaryOps2 = [];
+        exp.unaryOps1 = [];
+        exp.unaryOps1.push(operator);
+    }
+    else if (binOpPressed) {
+        exp.operand2 = performAllUnaryOps(exp.operand1, exp.unaryOps1);
         exp.unaryOps2.push(operator);
     }
     else {
-        exp.unaryOps1.push(operator);
+        if (exp.isBinary) {
+            if (exp.operand2 == "") {
+                exp.operand2 = exp.operand1;
+            }
+            exp.unaryOps2.push(operator);
+        }
+        else {
+            exp.unaryOps1.push(operator);
+        }
     }
-
     resultState = true;
     lastKey = key.Operator;
     handleExpDisplay(false);
@@ -655,14 +748,13 @@ const handleUnaryOp = (operator) => {
 
 const handleBinaryOp = (operator) => {
     if (exp.isBinary) {
-        if (exp.operand2 == "")
-            exp.operand1 = performAllUnaryOps(exp.operand1, exp.unaryOps1);
-        else
+        if (exp.operand2 != "") {
+            createHistoryItem(exp);
             exp.operand1 = performFlatExp(exp);
+            exp.unaryOps1 = [];
+        }
         exp.operand2 = "";
         exp.unaryOps2 = [];
-        exp.unaryOps1 = [];
-        // create history
     } else {
         exp.isBinary = true;
     }
@@ -684,15 +776,18 @@ const handleEqualBtn = () => {
     if (exp.isBinary && exp.operand2 == "") {
         exp.operand2 = exp.operand1;
     }
-    // create history
-    handleExpDisplay(true);
-    handleFieldDisplay(true);
-    createHistoryItem(exp);
+    // if (!errorState) {
+        handleExpDisplay(true);
+        handleFieldDisplay(true);
+        createHistoryItem(exp);        
+        resultState = true;
+    // }
+    // else
+        disableErrorState();
     exp.operand1 = performFlatExp(exp);
     exp.operand2 = performAllUnaryOps(exp.operand2, exp.unaryOps2);
     exp.unaryOps2 = [];
     exp.unaryOps1 = [];
-    resultState = true;
     lastKey = key.Equal;
 }
 
@@ -713,8 +808,8 @@ const createHistoryItem = (exp, key = "") => {
     item.classList.add("item");
     hExp.classList.add("h-exp");
     hResult.classList.add("h-result");
-    hExp.innerText = addMoreSpace(readFlatExp(exp), exp) + " =";
-    hResult.innerText = performFlatExp(exp);
+    hExp.innerHTML = addMoreSpace(readFlatExp(exp), exp) + " =";
+    hResult.innerHTML = performFlatExp(exp);
     if (key == "") {
         key = "hist_" + list.children.length;
         localStorage.setItem(key, JSON.stringify(exp));
@@ -742,8 +837,8 @@ const fetchHistoryItem = (event) => {
     let item = event.currentTarget;
     let key = item.dataset.key;
     exp = JSON.parse(localStorage.getItem(key));
-    handleExpDisplay(false);
-    handleFieldDisplay(false);
+    handleExpDisplay(true);
+    handleFieldDisplay(true);
 };
 
 const loadHistory = () => {
@@ -765,13 +860,22 @@ const loadHistory = () => {
     }
 }
 
-const clearHistory = (hardReset) => {
+const clearHistory = () => {
     let emptyMsg = document.querySelector("#empty-msg");
     emptyMsg.style.display = "flex";
     let list = document.querySelector("#history-list");
     list.innerHTML = "";
-    if (hardReset) {
-        localStorage.clear();
+    let removeKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("hist")) {
+            removeKeys.push(key);
+        }
+    }
+    if (removeKeys.length > 0) {
+        for (let i = 0; i < removeKeys.length; i++) {
+            localStorage.removeItem(removeKeys[i]);
+        }
     }
 };
 
@@ -783,6 +887,8 @@ loadHistory();
       HANDLING APP THEME
     ======================
 */
+
+let isAnimatingTheme = false;
 
 const setTheme = (str) => {
     localStorage.setItem("theme", str);
@@ -827,9 +933,11 @@ const switchTheme = (setPosition = true) => {
     getTheme(setPosition);
 };
 
-getTheme();
-
 const handleThemeBtn = (event) => {
+    if (isAnimatingTheme)
+        return;
+    isAnimatingTheme = true;
+
     let btn = event.currentTarget.querySelector("#active-theme");
     let child = btn.firstElementChild;
     let transVal = 0;
@@ -875,9 +983,13 @@ const handleThemeBtn = (event) => {
             fill: 'forwards'
         }
     );
-    rotation.finished.then(() => switchTheme(false));
+    rotation.finished.then(() => {
+        isAnimatingTheme = false;
+        switchTheme(false)
+    });
 
     translation.finished.then(() => {
+        isAnimatingTheme = false;
         if (theme == "light") {
             btn.style.right = "3px";
             btn.style.left = "";
@@ -885,10 +997,13 @@ const handleThemeBtn = (event) => {
         else {
             btn.style.right = "";
             btn.style.left = "3px";
-        }        
+        }
+        event.currentTarget.disabled = false;
+        event.currentTarget.removeAttribute("disabled");
     });
-
 }
+
+getTheme();
 
 
 /* 
@@ -920,4 +1035,4 @@ squareBtn.addEventListener("click", () => handleUnaryOp(unOp.Square));
 sqRootBtn.addEventListener("click", () => handleUnaryOp(unOp.SqRoot));
 
 equalBtn.addEventListener("click", handleEqualBtn);
-delHistoryBtn.addEventListener("click", () => clearHistory(true));
+delHistoryBtn.addEventListener("click", () => clearHistory());
