@@ -98,5 +98,14 @@
         <section id="memory"></section>
     </aside>
     <script src="script.js"></script>
+    <script>
+        function setAppHeight() {
+            const appHeight = window.innerHeight;
+            document.documentElement.style.setProperty('--app-height', `${appHeight}px`);
+        }
+        window.addEventListener('resize', setAppHeight);
+        window.addEventListener('orientationchange', setAppHeight);
+        setAppHeight();
+    </script>
 </body>
 </html>
