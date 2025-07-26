@@ -2,6 +2,7 @@
     --bg: #f3f2f8;
     --bg_hover: #eae9ef;
     --bg-text-dim: #616161; /* All expressions, Tab hover */
+    --overlay: rgba(61, 60, 61, 0.4);
     --theme-btn-text: #a8a8a8;
     --theme-btn-shadow: #a8a8a888;
     --dim-btn: #f9f8fa;
@@ -32,7 +33,7 @@
     --bg: #202020;
     --bg_hover: #2d2d2f;
     --bg-text-dim: #a4a4a4; /* All expressions, Tab hover */
-
+    --overlay: rgba(0, 0, 0, 0.4);
     --theme-btn-text: #484848;
     --theme-btn-shadow: #48484888;
 
@@ -111,6 +112,7 @@ body {
 main {
     width: clamp(100vw - 20rem, 57.3vw, 100vw - 15rem);
     height: 100vh;
+    height: 100dvh;
 }
 
 fieldset {
@@ -127,6 +129,7 @@ button {
 
 #title-bar {
     height: 6vh;
+    height: 6dvh;
     padding-top: 1rem;
     padding-left: 0.5rem;
     display: flex;
@@ -226,9 +229,11 @@ button {
 
 #output-bar {
     height: 20.7vh;
+    height: 20.7dvh;
     width: 100%;
     padding-right: 0.75rem;
     padding-top: 4vh;
+    padding-top: 4dvh;
     display: flex;
     flex-direction: column;
     align-items: end;
@@ -243,6 +248,7 @@ button {
     & #type {
         height: 100%;
         padding-top: 0.75vh;
+        padding-top: 0.75dvh;
         font-size: var(--output-type-font);
         font-weight: 600;
         line-height: 1;
@@ -251,6 +257,7 @@ button {
 
 #tool-bar {
     height: 6.5vh;
+    height: 6.5dvh;
     padding: 0 0.25rem;
     display: flex;
     flex-wrap: nowrap;
@@ -291,6 +298,7 @@ button {
     display: grid;
     width: 100%;
     height: 66.8vh;
+    height: 66.8dvh;
     padding: 0.125rem 0.25rem 0.25rem 0.25rem;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -481,6 +489,7 @@ button {
 
         & #history-list {
             height: calc(100vh - 9rem);
+            height: calc(100dvh - 9rem);
             overflow-y: scroll;
         }
 
@@ -566,9 +575,10 @@ button {
     inset: 0px;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     display: none;
     z-index: 3;
-    background-color: rgba(61, 60, 61, 0.4);
+    background-color: var(--overlay);
 }
 
 /* --------------------------------------------------------------------------------- */
@@ -580,7 +590,6 @@ button {
         font-size: 3rem;
     }
 }
-
 
 @media (min-width: 800px) and (min-height: 670px) {
 
@@ -614,6 +623,7 @@ button {
     #storage-panel {
         position: relative !important;
         top: 0vh !important;
+        top: 0dvh !important;
         display: flex !important;
         opacity: 1 !important;
 
@@ -650,16 +660,25 @@ button {
     }
     
     #m-view-btn {
-        display: block !important;
+        display: flex !important;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        width: clamp(3.6875rem, 20%, 4.8125rem);
+        & span {
+            font-size: 0.75rem;
+        }
     }
 
     #storage-panel {
         position: absolute;
         z-index: 4;
         top: 100vh;
+        top: 100dvh;
         background-color: var(--bg);
         width: 100vw;
         height: 67vh;
+        height: 67dvh;
         border-top-left-radius: 0.5rem;
         border-top-right-radius: 0.5rem;
         display: none;
@@ -703,9 +722,11 @@ button {
 @keyframes slideIn {
     from {
         top: 45vh;
+        top: 45dvh;
         opacity: 0;
     } to {
         top: 33.3vh;
+        top: 33.3dvh;
         opacity: 1;
     }
 }
