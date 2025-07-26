@@ -26,6 +26,10 @@ let sqRootBtn = buttons.querySelector("#sqrt-btn");
 
 let equalBtn = buttons.querySelector("#equal-btn");
 let themeBtn = document.querySelector("#theme-btn");
+
+let storagePanel = document.querySelector("#storage-panel");
+let overlay = document.querySelector("#overlay");
+let histMobBtn = document.querySelector("#hist-mob-btn");
 let delHistoryBtn = document.querySelector("#storage-panel #del-history-btn");
 
 const key = Object.freeze({
@@ -837,6 +841,7 @@ const fetchHistoryItem = (event) => {
     let item = event.currentTarget;
     let key = item.dataset.key;
     exp = JSON.parse(localStorage.getItem(key));
+    resultState = true;
     handleExpDisplay(true);
     handleFieldDisplay(true);
 };
@@ -877,6 +882,52 @@ const clearHistory = () => {
             localStorage.removeItem(removeKeys[i]);
         }
     }
+};
+
+const openHistoryMob = () => {
+    overlay.style.display = "block";
+    storagePanel.style.top = "45vh";
+    storagePanel.style.display = "flex";
+    storagePanel.animate(
+        [
+            {
+                top: "45vh",
+                opacity: 0
+            },
+            {
+                top: "33.3vh",
+                opacity: 1
+            }
+        ],
+        {
+            duration: 200,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        }
+    );
+};
+
+const closeHistoryMob = () => {
+    const anim = storagePanel.animate(
+        [
+            {
+                opacity: 1
+            },
+            {
+                opacity: 0
+            }
+        ],
+        {
+            duration: 200,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        }
+    );
+    anim.finished.then(() => {
+        overlay.style.display = "none";
+        storagePanel.style.top = "101vh";
+        storagePanel.style.display = "none";
+    });
 };
 
 loadHistory();
@@ -1036,3 +1087,6 @@ sqRootBtn.addEventListener("click", () => handleUnaryOp(unOp.SqRoot));
 
 equalBtn.addEventListener("click", handleEqualBtn);
 delHistoryBtn.addEventListener("click", () => clearHistory());
+histMobBtn.addEventListener("click", openHistoryMob);
+
+overlay.addEventListener("click", closeHistoryMob);
