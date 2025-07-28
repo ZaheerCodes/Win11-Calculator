@@ -6,8 +6,8 @@
     <title>Calculator</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="font.css">
-    <script src="https://cdn.jsdelivr.net/npm/decimal.js@10.4.3/decimal.min.js"></script>
-    <script src="https://kit.fontawesome.com/817ae253f4.js" crossorigin="anonymous"></script>
+    <script src="/Assets/JS/decimal.min.js"></script>
+    <!-- <script src="https://kit.fontawesome.com/817ae253f4.js" crossorigin="anonymous"></script> -->
 </head>
 <body>
     <aside id="sidebar-menu">
@@ -31,11 +31,11 @@
         <section id="tool-bar">
             <fieldset>
                 <legend></legend>
-                <button id="m-clear-btn" class="disabled-btn">MC</button>
-                <button id="m-reset-btn" class="disabled-btn">MR</button>
-                <button id="m-plus-btn" class="disabled-btn">M+</button>
-                <button id="m-minus-btn" class="disabled-btn">M-</button>
-                <button id="m-store-btn" class="disabled-btn">MS</button>
+                <button id="m-clear-btn">MC</button>
+                <button id="m-read-btn">MR</button>
+                <button id="m-plus-btn">M+</button>
+                <button id="m-minus-btn">M-</button>
+                <button id="m-store-btn">MS</button>
             </fieldset>
             <button id="m-view-btn">M<span class="icon-btn">&#xe011;</span></button>
         </section>
@@ -95,7 +95,14 @@
                 <button id="del-history-btn" class="icon-btn">&#xe74d;</button>
             </div>
         </section>
-        <section id="memory"></section>
+        <section id="memory">
+            <p id="empty-msg">There's nothing saved in memory.</p>
+            <ul id="memory-list">
+            </ul>
+            <div id="footer">
+                <button id="del-memory-btn" class="icon-btn">&#xe74d;</button>
+            </div>
+        </section>
     </aside>
     <script src="script.js"></script>
     <script>

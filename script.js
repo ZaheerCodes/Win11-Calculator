@@ -29,8 +29,20 @@ let themeBtn = document.querySelector("#theme-btn");
 
 let storagePanel = document.querySelector("#storage-panel");
 let overlay = document.querySelector("#overlay");
+
 let histMobBtn = document.querySelector("#hist-mob-btn");
 let delHistoryBtn = document.querySelector("#storage-panel #del-history-btn");
+
+let memoClearBtn = document.querySelector("#m-clear-btn");
+let memoReadBtn = document.querySelector("#m-read-btn");
+let memoPlusBtn = document.querySelector("#m-plus-btn");
+let memoMinusBtn = document.querySelector("#m-minus-btn");
+let memoStoreBtn = document.querySelector("#m-store-btn");
+let memoMobBtn = document.querySelector("#m-view-btn");
+let delMemoryBtn = document.querySelector("#del-memory-btn");
+let tabHistory = document.querySelector("#tab-history");
+let tabMemory = document.querySelector("#tab-memory");
+
 
 const key = Object.freeze({
     Digit: "digit",
@@ -58,7 +70,6 @@ const handleDigitInput = (event = null, str = "") => {
     if (lastKey == key.Equal || errorState) {
         handleClearAll();
         disableErrorState();
-        errorState = false;
     }
 
     let oldTxt = (exp.isBinary? exp.operand2 : exp.operand1).toString();
@@ -70,10 +81,12 @@ const handleDigitInput = (event = null, str = "") => {
         }
         else {
             setExpTxt(readFlatExp(exp));
-            createHistoryItem(exp);
+            if(errorState)
+                createHistoryItem(exp);
             exp.unaryOps1 = [];
         }
     }
+    errorState = false;
     
     let newTxt = str;
     if (event != null) {
@@ -436,7 +449,6 @@ adjustResultTxt();
 
 const handleBackspace = () => {
     disableErrorState();
-
     if (!resultState) {
         if (exp.isBinary) {
             exp.operand2 = delLastDigit(exp.operand2);
@@ -691,9 +703,17 @@ const handlePercentOp = () => {
 };
 
 const handleNegateOp = () => {
-    if (exp.isBinary) {
+    if (lastKey == key.Equal) {
+        exp.isBinary = false;
+        exp.binaryOp = "";
+        exp.operand2 = "";
+        exp.unaryOps2 = [];
+        exp.unaryOps1.push(unOp.Negate);
+        handleExpDisplay(false);
+    }
+    else if (exp.isBinary) {
         if (exp.operand2 == "") {
-            exp.operand2 = exp.operand1;            
+            exp.operand2 = performAllUnaryOps(exp.operand1, exp.unaryOps1);
         }
         if (resultState) {
             exp.unaryOps2.push(unOp.Negate);
@@ -780,13 +800,13 @@ const handleEqualBtn = () => {
     if (exp.isBinary && exp.operand2 == "") {
         exp.operand2 = exp.operand1;
     }
-    // if (!errorState) {
+    if (!errorState) {
         handleExpDisplay(true);
         handleFieldDisplay(true);
         createHistoryItem(exp);        
         resultState = true;
-    // }
-    // else
+    }
+    else
         disableErrorState();
     exp.operand1 = performFlatExp(exp);
     exp.operand2 = performAllUnaryOps(exp.operand2, exp.unaryOps2);
@@ -797,15 +817,153 @@ const handleEqualBtn = () => {
 
 
 /* 
-    ====================
-      HANDLING HISTORY
-    ====================
+    ==========================
+      HANDLING STORAGE PANEL
+    ==========================
+*/
+
+const tabs = Object.freeze({
+    History: "history",
+    Memory: "memory"
+});
+let openedTab = tabs.History;
+
+const openStoragePanelMob = () => {
+    overlay.style.display = "block";
+    storagePanel.style.top = "45vh";
+    storagePanel.style.display = "flex";
+    storagePanel.animate(
+        [
+            {
+                top: "45vh",
+                opacity: 0
+            },
+            {
+                top: "33.3vh",
+                opacity: 1
+            }
+        ],
+        {
+            duration: 200,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        }
+    );
+};
+
+const closeStoragePanelMob = () => {
+    const anim = storagePanel.animate(
+        [
+            {
+                opacity: 1
+            },
+            {
+                opacity: 0
+            }
+        ],
+        {
+            duration: 200,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        }
+    );
+    anim.finished.then(() => {
+        overlay.style.display = "none";
+        storagePanel.style.top = "101vh";
+        storagePanel.style.display = "none";
+    });
+};
+
+const switchTab = (tab) => {
+    // Prevent re-opening of same tab:
+    if (openedTab == tab) {
+        return;
+    } else {
+        openedTab = tab;
+    }
+
+    let openTab, closeTab;
+    let transDir;
+    if (tab == "history") {
+        openTab = document.querySelector("#history");
+        closeTab = document.querySelector("#memory");
+        transDir = -1;
+    }
+    else if (tab == "memory") {
+        closeTab = document.querySelector("#history");
+        openTab = document.querySelector("#memory");
+        transDir = 1;
+    }
+    closeTab.classList.remove("active");
+    openTab.classList.add("active");
+    let openAnim, closeAnim;
+    closeAnim = closeTab.animate(
+        [
+            {
+                opacity: "1",
+                transform: "translateX(0)"
+            },
+            {
+                opacity: "0",
+                transform: `translateX(${10*transDir}px)`
+            }
+        ],
+        {
+            duration: 100,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        }
+    );
+    closeAnim.finished.then(() => {
+        closeTab.style.display = "none";
+        openTab.style.display = "flex";
+        openAnim = openTab.animate(
+            [
+                {
+                    opacity: "0",
+                    transform: `translateX(${-10*transDir}px)`
+                },
+                {
+                    opacity: "1",
+                    transform: `translateX(0px)`
+                }
+            ],
+            {
+                duration: 100,
+                easing: 'ease-in-out',
+                fill: 'forwards'
+            }
+        );
+    });
+
+};
+
+const switchTabMob = (tab) => {
+    let openTab, closeTab;
+    if (tab == "history") {
+        openTab = document.querySelector("#history");
+        closeTab = document.querySelector("#memory");
+    }
+    else if (tab == "memory") {
+        closeTab = document.querySelector("#history");
+        openTab = document.querySelector("#memory");
+    }
+    openTab.style.display = "flex";
+    closeTab.style.display = "none";
+};
+
+
+/* 
+    ==========================
+      HANDLING HISTORY PANEL
+    ==========================
 */
 
 const createHistoryItem = (exp, key = "") => {
-    let emptyMsg = document.querySelector("#empty-msg");
+    let panel = document.querySelector("#history");
+    let emptyMsg = panel.querySelector("#empty-msg");
     emptyMsg.style.display = "none";
-    let list = document.querySelector("#history-list");
+    let list = panel.querySelector("#history-list");
     let item = document.createElement("li");
     let hExp = document.createElement("pre");
     let hResult = document.createElement("pre");
@@ -813,7 +971,7 @@ const createHistoryItem = (exp, key = "") => {
     hExp.classList.add("h-exp");
     hResult.classList.add("h-result");
     hExp.innerHTML = addMoreSpace(readFlatExp(exp), exp) + " =";
-    hResult.innerHTML = performFlatExp(exp);
+    hResult.innerHTML = addCommas(performFlatExp(exp));
     if (key == "") {
         key = "hist_" + list.children.length;
         localStorage.setItem(key, JSON.stringify(exp));
@@ -842,6 +1000,7 @@ const fetchHistoryItem = (event) => {
     let key = item.dataset.key;
     exp = JSON.parse(localStorage.getItem(key));
     resultState = true;
+    disableErrorState();
     handleExpDisplay(true);
     handleFieldDisplay(true);
 };
@@ -865,8 +1024,9 @@ const loadHistory = () => {
     }
 }
 
-const clearHistory = () => {
-    let emptyMsg = document.querySelector("#empty-msg");
+const clearAllHistory = () => {
+    let panel = document.querySelector("#history");
+    let emptyMsg = panel.querySelector("#empty-msg");
     emptyMsg.style.display = "flex";
     let list = document.querySelector("#history-list");
     list.innerHTML = "";
@@ -884,53 +1044,135 @@ const clearHistory = () => {
     }
 };
 
-const openHistoryMob = () => {
-    overlay.style.display = "block";
-    storagePanel.style.top = "45vh";
-    storagePanel.style.display = "flex";
-    storagePanel.animate(
-        [
-            {
-                top: "45vh",
-                opacity: 0
-            },
-            {
-                top: "33.3vh",
-                opacity: 1
-            }
-        ],
-        {
-            duration: 200,
-            easing: 'ease-in-out',
-            fill: 'forwards'
-        }
-    );
-};
-
-const closeHistoryMob = () => {
-    const anim = storagePanel.animate(
-        [
-            {
-                opacity: 1
-            },
-            {
-                opacity: 0
-            }
-        ],
-        {
-            duration: 200,
-            easing: 'ease-in-out',
-            fill: 'forwards'
-        }
-    );
-    anim.finished.then(() => {
-        overlay.style.display = "none";
-        storagePanel.style.top = "101vh";
-        storagePanel.style.display = "none";
-    });
-};
-
 loadHistory();
+
+
+/* 
+    =========================
+      HANDLING MEMORY PANEL
+    =========================
+*/
+
+const createMemoryItem = (str, key = "") => {
+    let panel = document.querySelector("#memory");
+    let emptyMsg = panel.querySelector("#empty-msg");
+    emptyMsg.style.display = "none";
+    let list = panel.querySelector("#memory-list");
+    let item = document.createElement("li");
+    item.classList.add("item");
+    item.innerHTML = `<pre class="value">${str}</pre><div class="buttons"><button>MC</button><button>M+</button><button>M-</button></div>`;
+
+    let btns = item.lastElementChild;
+    let b1 = btns.firstElementChild;
+    let b2 = b1.nextElementSibling;
+    let b3 = b2.nextElementSibling;
+    b1.addEventListener("click", clearMemoryItem);
+    b2.addEventListener("click", (event) => handleMemoItemSum(event, "+"));
+    b3.addEventListener("click", (event) => handleMemoItemSum(event, "-"));
+
+    if (key == "") {
+        key = "memo_" + list.children.length;
+        localStorage.setItem(key, str);
+    }
+    item.setAttribute("data-key", key);
+    item.addEventListener("click", fetchMemoryItem);
+    list.insertBefore(item, list.firstChild);
+    resultState = true;
+};
+
+const fetchMemoryItem = (event) => {
+    if (event.currentTarget.lastElementChild.contains(event.target))
+        return;
+
+    let key = event.currentTarget.dataset.key;
+    if(exp.isBinary) {
+        exp.operand2 = localStorage.getItem(key);
+        exp.unaryOps2 = [];
+    } else {
+        exp.operand1 = localStorage.getItem(key);
+        exp.unaryOps1 = [];
+    }
+    resultState = true;
+    disableErrorState();
+    handleFieldDisplay(false);
+};
+
+const loadMemory = () => {
+    let keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("memo")) {
+            keys.push(key);
+        }
+    }
+    if (keys.length > 0) {
+        keys.sort((a,b) => {
+            return a.slice(5) - b.slice(5);
+        });
+        for (let i = 0; i < keys.length; i++) {
+            let str = localStorage.getItem(keys[i]);
+            createMemoryItem(str, keys[i]);
+        }
+    }
+}
+
+const clearAllMemory = () => {
+    let panel = document.querySelector("#memory");
+    let emptyMsg = panel.querySelector("#empty-msg");
+    emptyMsg.style.display = "flex";
+    let list = document.querySelector("#memory-list");
+    list.innerHTML = "";
+    let removeKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("memo")) {
+            removeKeys.push(key);
+        }
+    }
+    if (removeKeys.length > 0) {
+        for (let i = 0; i < removeKeys.length; i++) {
+            localStorage.removeItem(removeKeys[i]);
+        }
+    }
+};
+
+const handleMemoSum = (op) => {
+    let element = document.querySelector("#memory-list").firstElementChild.firstElementChild;
+    let value;
+    if (op == "+") {
+        value = (new Decimal(element.innerHTML)).plus(new Decimal(getTypeTxt()));
+    }
+    else if (op == "-") {
+        value = (new Decimal(element.innerHTML)).minus(new Decimal(getTypeTxt()));
+    }
+    else
+        return;
+    element.innerHTML = value;
+    localStorage.setItem(element.parentElement.dataset.key, value);
+};
+
+const clearMemoryItem = (event) => {
+    let element = event.currentTarget.parentElement.parentElement;
+    localStorage.removeItem(element.dataset.key);
+    element.remove();
+};
+
+const handleMemoItemSum = (event, op) => {
+    let element = event.currentTarget.parentElement.previousElementSibling;
+    let value;
+    if (op == "+") {
+        value = (new Decimal(element.innerHTML)).plus(new Decimal(getTypeTxt()));
+    }
+    else if (op == "-") {
+        value = (new Decimal(element.innerHTML)).minus(new Decimal(getTypeTxt()));
+    } else
+        return;
+    element.innerHTML = value;
+    localStorage.setItem(element.parentElement.dataset.key, value);
+} 
+
+loadMemory();
+handleClearAll();
 
 
 /* 
@@ -1086,7 +1328,26 @@ squareBtn.addEventListener("click", () => handleUnaryOp(unOp.Square));
 sqRootBtn.addEventListener("click", () => handleUnaryOp(unOp.SqRoot));
 
 equalBtn.addEventListener("click", handleEqualBtn);
-delHistoryBtn.addEventListener("click", () => clearHistory());
-histMobBtn.addEventListener("click", openHistoryMob);
 
-overlay.addEventListener("click", closeHistoryMob);
+tabHistory.addEventListener("click", () => switchTab(tabs.History));
+tabMemory.addEventListener("click", () => switchTab(tabs.Memory));
+overlay.addEventListener("click", closeStoragePanelMob);
+
+delHistoryBtn.addEventListener("click", clearAllHistory);
+histMobBtn.addEventListener("click", () => {
+    openStoragePanelMob();
+    switchTabMob(tabs.History);
+});
+
+memoClearBtn.addEventListener("click", clearAllMemory);
+memoPlusBtn.addEventListener("click", () => handleMemoSum("+"));
+memoMinusBtn.addEventListener("click", () => handleMemoSum("-"));
+memoStoreBtn.addEventListener("click", () => createMemoryItem(getTypeTxt()));
+memoReadBtn.addEventListener("click", () => {
+    document.querySelector("#memory-list").firstElementChild.dispatchEvent(new Event("click"));
+})
+delMemoryBtn.addEventListener("click", clearAllMemory);
+memoMobBtn.addEventListener("click", () => {
+    openStoragePanelMob();
+    switchTabMob(tabs.Memory);
+});
